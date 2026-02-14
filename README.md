@@ -1,5 +1,4 @@
-# gestion-hotel
-🏨 Proyecto Hotel
+# 🏨 Proyecto Hotel
 
 ## Nombre del proyecto:
 
