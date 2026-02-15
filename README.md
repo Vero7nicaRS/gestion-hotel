@@ -1,6 +1,7 @@
 # 🏨 Proyecto Hotel
 
 ## Nombre del proyecto:
+Hestia: Hotel Management System (HMS)
 
 ## 👥 Integrantes del equipo
 - Meyerson Stiven Alvarez Castro.
