@@ -1,59 +1,50 @@
 from rest_framework import serializers
-from .models import tipohabitacion, habitacion, tiposala, sala, cliente, reserva, reserva_sala, reserva_habitacion
+from .models import Cliente, Habitacion, Reserva, ReservaHabitacion, ReservaSala, TipoHabitacion, TipoSala 
 
-class tipohabitacionSerializer(serializers.ModelSerializer):
+class TipoHabitacionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = tipohabitacion
+        model = TipoHabitacion
         fields = ['id', 'nombre', 'precio', 'descripcion']
         read_only_fields = ['id']
 
-class habitacionSerializer(serializers.ModelSerializer):
-    idtipo_habitacion = tipohabitacionSerializer(read_only=True)
-    class Meta:
-        model = habitacion
+class HabitacionSerializer(serializers.ModelSerializer):
+        model = Habitacion
         fields = ['id', 'numero', 'idtipo_habitacion', 'estado']
         read_only_fields = ['id']
 
-class tiposalaSerializer(serializers.ModelSerializer):
+class TipoSalaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = tiposala
+        model = TipoSala
         fields = ['id', 'nombre', 'precio', 'descripcion']
         read_only_fields = ['id']
 
-class salaSerializer(serializers.ModelSerializer):
-    idtipo_sala = tiposalaSerializer(read_only=True)
+class SalaSerializer(serializers.ModelSerializer):
+    idtipo_sala = TipoSalaSerializer(read_only=True)
     class Meta:
-        model = sala
+        model = Sala
         fields = ['id', 'numero', 'idtipo_sala', 'estado']
         read_only_fields = ['id']
 
-class clienteSerializer(serializers.ModelSerializer):
+class ClienteSerializer(serializers.ModelSerializer):
     class Meta:
-        model = cliente
+        model = Cliente
         fields = ['id', 'nombre', 'email']
         read_only_fields = ['id']
 
-class reservaSerializer(serializers.ModelSerializer):
-    idcliente = clienteSerializer(read_only=True)
-    estado = serializers.CharField(source='get_estado_display', read_only=True)
-    tipo_reserva = serializers.CharField(source='get_tipo_reserva_display', read_only=True)
+class ReservaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = reserva
+        model = Reserva
         fields = ['id', 'idcliente','estado','tipo_reserva','fecha_reserva']
         read_only_fields = ['id']
 
-class reserva_salaSerializer(serializers.ModelSerializer):
-    idreserva = reservaSerializer(read_only=True)
-    idsala = salaSerializer(read_only=True)
+class ReservaSalaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = reserva_sala
+        model = ReservaSala
         fields = ['id', 'idreserva', 'idsala','numero_personas','fecha_uso', 'hora_inicio', 'hora_fin']
         read_only_fields = ['id']
 
-class reserva_habitacionSerializer(serializers.ModelSerializer):
-    idreserva = reservaSerializer(read_only=True)
-    idhabitacion = habitacionSerializer(read_only=True)
+class ReservaHabitacionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = reserva_habitacion
+        model = ReservaHabitacion
         fields = ['id', 'idreserva', 'idhabitacion','numero_personas','fecha_entrada', 'fecha_salida']
         read_only_fields = ['id']
