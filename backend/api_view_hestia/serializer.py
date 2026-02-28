@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Cliente, Habitacion, Reserva, ReservaHabitacion, ReservaSala, TipoHabitacion, TipoSala 
+from .models import Cliente, Habitacion, Reserva, ReservaHabitacion, ReservaSala, Sala, TipoHabitacion, TipoSala 
 
 class TipoHabitacionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,7 +19,6 @@ class TipoSalaSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 class SalaSerializer(serializers.ModelSerializer):
-    idtipo_sala = TipoSalaSerializer(read_only=True)
     class Meta:
         model = Sala
         fields = ['id', 'numero', 'idtipo_sala', 'estado']
