@@ -46,10 +46,10 @@ class TipoSalaSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 class SalaSerializer(serializers.ModelSerializer):
-    idtipo_sala = TipoSalaSerializer(read_only=True)
+    tipo_sala = TipoSalaSerializer(read_only=True)
     class Meta:
         model = Sala
-        fields = ['id', 'numero', 'idtipo_sala', 'estado']
+        fields = ['id', 'numero', 'tipo_sala', 'estado']
         read_only_fields = ['id']
 
 class clienteSerializer(serializers.ModelSerializer):
@@ -59,26 +59,26 @@ class clienteSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 class reservaSerializer(serializers.ModelSerializer):
-    idcliente = clienteSerializer(read_only=True)
+    cliente = clienteSerializer(read_only=True)
     estado = serializers.CharField(source='get_estado_display', read_only=True)
     tipo_reserva = serializers.CharField(source='get_tipo_reserva_display', read_only=True)
     class Meta:
         model = Reserva
-        fields = ['id', 'idcliente','estado','tipo_reserva','fecha_reserva']
+        fields = ['id', 'cliente','estado','tipo_reserva','fecha_reserva']
         read_only_fields = ['id']
 
 class reserva_salaSerializer(serializers.ModelSerializer):
-    idreserva = reservaSerializer(read_only=True)
-    idsala = SalaSerializer(read_only=True)
+    reserva = reservaSerializer(read_only=True)
+    sala = SalaSerializer(read_only=True)
     class Meta:
         model = ReservaSala
-        fields = ['id', 'idreserva', 'idsala','numero_personas','fecha_uso', 'hora_inicio', 'hora_fin']
+        fields = ['id', 'reserva', 'sala','numero_personas','fecha_uso', 'hora_inicio', 'hora_fin']
         read_only_fields = ['id']
 
 class reserva_habitacionSerializer(serializers.ModelSerializer):
-    idreserva = reservaSerializer(read_only=True)
-    idhabitacion = HabitacionSerializer(read_only=True)
+    reserva = reservaSerializer(read_only=True)
+    habitacion = HabitacionSerializer(read_only=True)
     class Meta:
         model = ReservaHabitacion
-        fields = ['id', 'idreserva', 'idhabitacion','numero_personas','fecha_entrada', 'fecha_salida']
+        fields = ['id', 'reserva', 'habitacion','numero_personas','fecha_entrada', 'fecha_salida']
         read_only_fields = ['id']
