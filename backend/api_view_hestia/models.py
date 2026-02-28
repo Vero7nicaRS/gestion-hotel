@@ -1,11 +1,21 @@
 from django.db import models
 
-class tipohabitacion(models.Model):
+# Se definen los modelos que va a tener la gestión hotelera Hestia:
+# - Tipohabitacion: detalle concreto de la habitación. 
+# - Habitacion.
+# - Tiposala: detalle concreto de la sala.
+# - Sala.
+# - Cliente.
+# - Reserva.
+# - Reserva_habitacion.
+# - Reserva_sala.
+
+# --------------------------------------------- HABITACION ---------------------------------------------
+class TipoHabitacion(models.Model):
     nombre = models.CharField(max_length=100)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
-    descripcion = models.TextField(max_length=250)
+    descripcion = models.CharField(max_length=250)
     
-
     def __str__(self):
         return f"{self.nombre} - ${self.precio}"
     
@@ -13,21 +23,21 @@ class tipohabitacion(models.Model):
         ordering = ['nombre']
     
     
-class habitacion(models.Model):
+class Habitacion(models.Model):
     numero = models.CharField(max_length=10, unique=True)
-    idtipo_habitacion = models.ForeignKey(tipohabitacion, on_delete=models.CASCADE)
+    tipo_habitacion = models.ForeignKey(TipoHabitacion, on_delete=models.CASCADE) # FK
     class Estado(models.TextChoices):
         DISPONIBLE = "DISPONIBLE", "Disponible"
         OCUPADA = "OCUPADA", "Ocupada"
     estado = models.CharField(max_length=20, choices=Estado.choices, default=Estado.DISPONIBLE)
 
     def __str__(self):
-        return f"Habitación {self.numero} - {self.idtipo_habitacion.nombre}"
+        return f"Habitación {self.numero} - {self.tipo_habitacion.nombre}"
     class Meta:
         ordering = ['numero']
     
-
-class tiposala(models.Model):
+# --------------------------------------------- SALA ---------------------------------------------
+class TipoSala(models.Model):
     nombre = models.CharField(max_length=100)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     descripcion = models.TextField(max_length=250)
@@ -37,20 +47,21 @@ class tiposala(models.Model):
     class Meta:
         ordering = ['nombre']
     
-class sala(models.Model):
+class Sala(models.Model):
     numero = models.CharField(max_length=10, unique=True)
-    idtipo_sala = models.ForeignKey(tiposala, on_delete=models.CASCADE)
+    tipo_sala = models.ForeignKey(TipoSala, on_delete=models.CASCADE) # FK
     class Estado(models.TextChoices):
         DISPONIBLE = "DISPONIBLE", "Disponible"
         OCUPADA = "OCUPADA", "Ocupada"
     estado = models.CharField(max_length=20, choices=Estado.choices, default=Estado.DISPONIBLE)
 
     def __str__(self):
-        return f"Sala {self.numero} - {self.idtipo_sala.nombre}"
+        return f"Sala {self.numero} - {self.tipo_sala.nombre}"
     class Meta:
         ordering = ['numero', 'estado']
-    
-class cliente(models.Model):
+
+# --------------------------------------------- CLIENTE ---------------------------------------------   
+class Cliente(models.Model):
     nombre = models.CharField(max_length=100)
     email = models.EmailField(max_length=65, unique=True)
 
@@ -58,9 +69,10 @@ class cliente(models.Model):
         return self.nombre
     class Meta:
         ordering = ['nombre']
-    
-class reserva(models.Model):
-    idcliente = models.ForeignKey(cliente, on_delete=models.CASCADE)
+
+# ----------------------------------------------- RESERVA -----------------------------------------------   
+class Reserva(models.Model):
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE) # FK
     class TipoReserva(models.TextChoices):
         HABITACION = "HABITACION", "Habitación"
         SALA = "SALA", "Sala"
@@ -73,36 +85,39 @@ class reserva(models.Model):
     fecha_reserva = models.DateField()
 
     def __str__(self):
-        if self.tipo_reserva == self.TipoReserva.HABITACION:
-            return f"Reserva de {self.idcliente} para habitación {self.idhabitacion}"
-        elif self.tipo_reserva == self.TipoReserva.SALA:
-            return f"Reserva de {self.idcliente} para sala {self.idsala}"
-        
+        return f"Reserva de {self.cliente.nombre} para {self.tipo_reserva} en la fecha {self.fecha_reserva}"
     class Meta:
         ordering = ['fecha_reserva', 'estado']
         
-class reserva_habitacion(models.Model):
-    idhabitacion = models.ForeignKey(habitacion, on_delete=models.CASCADE)
-    idreserva=models.OneToOneField(reserva, on_delete=models.CASCADE)
+class ReservaHabitacion(models.Model):
+    habitacion = models.ForeignKey(Habitacion, on_delete=models.CASCADE) # FK
+    reserva =models.OneToOneField(Reserva, on_delete=models.CASCADE) # FK
     numero_personas = models.PositiveIntegerField()
     fecha_entrada = models.DateField()
     fecha_salida = models.DateField()
 
     def __str__(self):
-        return f"Reserva de {self.idcliente} para habitación {self.idhabitacion}"
+        return(
+            f"Reserva de {self.reserva.cliente.nombre} para habitación {self.habitacion.numero} "
+            f"desde {self.fecha_entrada} hasta {self.fecha_salida}"
+        ) 
+    
     class Meta:
         ordering = ['fecha_entrada', 'fecha_salida']
 
-class reserva_sala(models.Model):
-    idsala = models.ForeignKey(sala, on_delete=models.CASCADE)
-    idreserva=models.ForeignKey(reserva, on_delete=models.CASCADE)
+class ReservaSala(models.Model):
+    sala = models.ForeignKey(Sala, on_delete=models.CASCADE) # FK
+    reserva =models.OneToOneField(Reserva, on_delete=models.CASCADE) # FK
     numero_personas = models.PositiveIntegerField()
-    fecha_uso = models.DateField() #fecha en la que se usará la sala
+    fecha_uso = models.DateField() # Fecha en la que se usará la sala
     hora_inicio = models.TimeField()
     hora_fin = models.TimeField()
 
     def __str__(self):  
-        return f"Reserva de {self.idcliente} para sala {self.idsala}"
+        return(
+            f"Reserva de {self.reserva.cliente.nombre} para sala {self.sala.numero} "
+            f"el {self.fecha_uso} de {self.hora_inicio} a {self.hora_fin}"
+        ) 
     class Meta:
         ordering = ['fecha_uso', 'hora_inicio']
 

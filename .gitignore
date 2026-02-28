@@ -10,3 +10,13 @@ venv/
 # Archivos Python
 __pycache__/
 *.pyc
+
+# Base de datos local
+db.sqlite3
+
+# Archivo de migraciones de Django
+.sqlite3
+
+# Archivos del sistema
+.DB_Store
+Thumbs.db
