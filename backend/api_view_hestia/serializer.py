@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from .models import Cliente, Habitacion, Reserva, ReservaHabitacion, ReservaSala, Sala, TipoHabitacion, TipoSala 
 
+#----------- SERIALIZERS -----------
+
+#----------- HABITACION API SERIALIZERS -----------
 class TipoHabitacionSerializer(serializers.ModelSerializer):
     class Meta:
         model = TipoHabitacion
@@ -8,10 +11,12 @@ class TipoHabitacionSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 class HabitacionSerializer(serializers.ModelSerializer):
+    class Meta:
         model = Habitacion
         fields = ['id', 'numero', 'idtipo_habitacion', 'estado']
         read_only_fields = ['id']
 
+#----------- SALA API SERIALIZERS -----------
 class TipoSalaSerializer(serializers.ModelSerializer):
     class Meta:
         model = TipoSala
@@ -24,12 +29,14 @@ class SalaSerializer(serializers.ModelSerializer):
         fields = ['id', 'numero', 'idtipo_sala', 'estado']
         read_only_fields = ['id']
 
+#----------- CLIENTE API SERIALIZERS -----------
 class ClienteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cliente
         fields = ['id', 'nombre', 'email']
         read_only_fields = ['id']
 
+#----------- RESERVA API SERIALIZERS -----------
 class ReservaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reserva

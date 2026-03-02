@@ -1,14 +1,16 @@
 from django.urls import path
-from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from .views import TipoSalaList, SalaList
 
 # ROUTER VIEWSET
 router = DefaultRouter() 
 
 urlpatterns = router.urls
-# urlpatterns = [
-#    # Agrega tus rutas aquí
-# ]
 
 
+#------ API VIEWS URLS -------
+urlpatterns = [
+    path('tipos-sala/', TipoSalaList.as_view(), name='tipos-sala'),
+    path('salas/', SalaList.as_view(), name='salas'),
+]
 
