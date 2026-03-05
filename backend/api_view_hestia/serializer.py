@@ -11,7 +11,7 @@ class TipoHabitacionSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 class HabitacionSerializer(serializers.ModelSerializer):
-    idtipo_habitacion=TipoHabitacionSerializer(readOnly=True)
+    idtipo_habitacion=TipoHabitacionSerializer(read_only=True)
     class Meta:
         model = Habitacion
         fields = ['id', 'numero', 'idtipo_habitacion', 'estado']
@@ -25,7 +25,7 @@ class TipoSalaSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 class SalaSerializer(serializers.ModelSerializer):
-    idtipo_sala=TipoHabitacionSerializer(readOnly=True)
+    idtipo_sala=TipoHabitacionSerializer(read_only=True)
     class Meta:
         model = Sala
         fields = ['id', 'numero', 'idtipo_sala', 'estado']
@@ -40,22 +40,22 @@ class ClienteSerializer(serializers.ModelSerializer):
 
 #----------- RESERVA API SERIALIZERS -----------
 class ReservaSerializer(serializers.ModelSerializer):
-    idcliente = ClienteSerializer(read_only=True)
-    estado= serializers.CharField(source='get_estado_display', readOnly=True)
-    tipo_reserva= serializers.CharField(source='get_TipoReserva', readOnly=True)
+    cliente = ClienteSerializer(read_only=True)
+    estado= serializers.CharField(source='get_estado_display', read_only=True)
+    tipo_reserva= serializers.CharField(source='get_TipoReserva', read_only=True)
     class Meta:
         model = Reserva
-        fields = ['id', 'idcliente','estado','tipo_reserva','fecha_reserva']
+        fields = ['id', 'cliente','estado','tipo_reserva','fecha_reserva']
         read_only_fields = ['id']
 
 class ReservaSalaSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReservaSala
-        fields = ['id', 'idreserva', 'idsala','numero_personas','fecha_uso', 'hora_inicio', 'hora_fin']
+        fields = ['id', 'reserva', 'sala','numero_personas','fecha_uso', 'hora_inicio', 'hora_fin']
         read_only_fields = ['id']
 
 class ReservaHabitacionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReservaHabitacion
-        fields = ['id', 'idreserva', 'idhabitacion','numero_personas','fecha_entrada', 'fecha_salida']
-        read_only_fields = ['id']
+        fields = '__all__'
+        read_only_fields = ['id','reserva']
