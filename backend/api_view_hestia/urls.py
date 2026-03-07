@@ -1,16 +1,13 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from .views import TipoSalaList, SalaList
+from .views import SalaViewSet, TipoSalaViewSet
 
 # ROUTER VIEWSET
 router = DefaultRouter() 
 
+router.register(r'salas', SalaViewSet, basename='salas')
+router.register(r'tipo-salas', TipoSalaViewSet, basename='tipo-salas')
+
 urlpatterns = router.urls
 
-
-#------ API VIEWS URLS -------
-urlpatterns = [
-    path('tipos-sala/', TipoSalaList.as_view(), name='tipos-sala'),
-    path('salas/', SalaList.as_view(), name='salas'),
-]
 
