@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react'
-import { API_BASE_URL } from './api/api'
-import './styles/Salas.css'
+import { API_BASE_URL } from '../api/api'
+import '../styles/Salas.css'
 
 // Importar imágenes locales
-import SalaEco1 from './assets/img/Sala-eco-1.jpg'
-import SalaEco2 from './assets/img/Sala-eco-2.jpg'
-import SalaEco3 from './assets/img/Sala-eco-3.jpg'
-import SalaEco4 from './assets/img/Sala-eco-4.jpg'
-import SalaPro1 from './assets/img/Sala-pro-1.jpg'
-import SalaPro2 from './assets/img/Sala-pro-2.webp'
-import SalaPro3 from './assets/img/Sala-pro-3.png'
-import SalaPro4 from './assets/img/Sala-pro-4.jpg'
+import SalaEco1 from '../assets/salas/Sala-eco-1.jpg'
+import SalaEco2 from '../assets/salas/Sala-eco-2.jpg'
+import SalaEco3 from '../assets/salas/Sala-eco-3.jpg'
+import SalaEco4 from '../assets/salas/Sala-eco-4.jpg'
+import SalaPro1 from '../assets/salas/Sala-pro-1.jpg'
+import SalaPro2 from '../assets/salas/Sala-pro-2.webp'
+import SalaPro3 from '../assets/salas/Sala-pro-3.png'
+import SalaPro4 from '../assets/salas/Sala-pro-4.jpg'
 
 // Mapeo de imágenes por nombre de sala
 const imagenesSalas = {

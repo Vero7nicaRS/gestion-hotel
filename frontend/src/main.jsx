@@ -2,16 +2,15 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
-import HabitacionDetalle from './pages/HabitacionDetalle.jsx'
+
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
 
-    <App>
-        <HabitacionDetalle>
+      <App>
 
-        </HabitacionDetalle>
-    </App>
+      </App>
+    
     
   </StrictMode>,
 )
