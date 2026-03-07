@@ -18,7 +18,6 @@ function App() {
 
         <Route path="/" element={<Navigate to="/habitacion/1" replace />} />  
         <Route path="/habitacion/:id" element={<HabitacionDetalle />} />
-        <Route path="/navbar" element={<NavBar />} />
         <Route path='*' element={<p>404: Página no encontrada</p>} />
       </Routes>
 
