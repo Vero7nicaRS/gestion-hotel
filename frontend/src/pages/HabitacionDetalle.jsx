@@ -7,6 +7,7 @@ import fotoBano from "../assets/habitacion/premium-bano.png";
 import fotoCocina from "../assets/habitacion/premium-cocina.png";
 import fotoEstudio from "../assets/habitacion/premium-estudio.png";
 import fotoHabitacion from "../assets/habitacion/premium-habitacion.png";
+import FormularioHabitacion from "../components/FormularioHabitacion";
 
 // Iconos
 import iconoCama from "../assets/iconos/cama.png";
@@ -138,7 +139,8 @@ export default function HabitacionDetalle() {
 
   return (
     <div className="hd-contenedor">
-      <h2 className="hd-titulo">{`Habitación ${tipo?.nombre || "Habitación"}`} {`(Nº ${habitacion?.numero})`}</h2>
+      <h2 className="hd-titulo">{`Habitación ${tipo?.nombre || "Habitación"}`} </h2> 
+
 
       {/* Miniaturas a la izquierda e imagen principal a la derecha en grande */}
       <div className="hd-contenedor-fotos">
@@ -300,7 +302,9 @@ export default function HabitacionDetalle() {
             </p>
           </div>
         </div>
-
+      <div className="formulario">
+          <FormularioHabitacion tipoHabitacion={tipo?.nombre || "Premium"} />
+        </div>
         
       </div>
 

@@ -23,8 +23,9 @@ export default function FormularioHabitacion({ tipoHabitacion }) {
   ? habitaciones.filter(
       (h) =>
         h.estado === "DISPONIBLE" &&
-        h.tipo_habitacion.nombre.toUpperCase() ===
-          tipoHabitacion.toUpperCase()
+        h.tipo_habitacion &&
+        h.tipo_habitacion.nombre &&
+        h.tipo_habitacion.nombre.toUpperCase() === tipoHabitacion.toUpperCase()
     )
   : habitaciones.filter((h) => h.estado === "DISPONIBLE");
 
