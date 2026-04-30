@@ -133,16 +133,6 @@ function NavBar() {
                 </Fragment>
               ))}
             </NavDropdown>
-   
-          {/*
-           <NavDropdown title="Salas" id="basic-nav-dropdown">
-              <NavDropdown.Item as={Link} to="/salas/">Eco</NavDropdown.Item>
-              <NavDropdown.Divider />
-              <NavDropdown.Item as={Link} to="/salas/">Pro</NavDropdown.Item>
-            </NavDropdown>
-          
-          */}  
-         
             <Nav.Link as={Link} to="/contacto">Contacto</Nav.Link>
             <NavDropdown title="Reservas" id="basic-nav-dropdown">
               <NavDropdown.Item as={Link} to="/sala-formulario">Reservas Salas</NavDropdown.Item>
