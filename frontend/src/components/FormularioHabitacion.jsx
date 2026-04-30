@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "../styles/Formulario.css";
+import { API_BASE_URL } from "../api/api";
 
 export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
   const [formData, setFormData] = useState({
@@ -18,22 +19,21 @@ export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
   const [cargando, setCargando] = useState(false);
   const [noches, setNoches] = useState(0);
 
-  //filtro para saber cual información mostrar segun el tipo de habitación
-  const habitacionesFiltradas = tipoHabitacion
-  ? habitaciones.filter(
-      (h) =>
-        h.estado === "DISPONIBLE" &&
-        h.tipo_habitacion &&
-        h.tipo_habitacion.nombre &&
-        h.tipo_habitacion.nombre.toUpperCase() === tipoHabitacion.toUpperCase()
-    )
-  : habitaciones.filter((h) => h.estado === "DISPONIBLE");
+  //filtro: disponibles del mismo tipo, sin duplicados
+  const habitacionesFiltradas = habitaciones.filter((h, i, arr) =>
+    arr.findIndex(x => x.id === h.id) === i &&
+    h.estado === "DISPONIBLE" &&
+    (!tipoHabitacion || h.tipo_habitacion?.nombre?.toUpperCase() === tipoHabitacion.toUpperCase())
+  );
 
-  //Traer habitaciones
+  //Traer lista de habitaciones
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/habitaciones/")
+    fetch(`${API_BASE_URL}/habitaciones/`)
       .then((res) => res.json())
-      .then((data) => setHabitaciones(data))
+      .then((data) => {
+        const arr = Array.isArray(data) ? data : (data.results || []);
+        setHabitaciones(arr);
+      })
       .catch((err) => console.error(err));
   }, []);
 
@@ -62,14 +62,19 @@ export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
       setPrecioTotal(0);
     }
   }, [formData, habitaciones]);
-  // poner id seleccionado en disponibilidad en el formulario
+  // Obtener la habitación seleccionada directamente de la API y pre-seleccionarla
   useEffect(() => {
-    if (habitacionId) {
-      setFormData((prev) => ({
-        ...prev,
-        habitacion: habitacionId.toString(),
-      }));
-    }
+    if (!habitacionId) return;
+    fetch(`${API_BASE_URL}/habitaciones/${habitacionId}/`)
+      .then((res) => res.json())
+      .then((room) => {
+        setFormData((prev) => ({ ...prev, habitacion: String(room.id) }));
+        setHabitaciones((prev) => {
+          if (prev.some((h) => h.id === room.id)) return prev;
+          return [room, ...prev];
+        });
+      })
+      .catch((err) => console.error(err));
   }, [habitacionId]);
     
   //Actualizar inputs usados por el cliente
@@ -85,7 +90,7 @@ export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
     setMensaje("");
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/reserva-habitacion/",
+        `${API_BASE_URL}/reserva-habitacion/`,
         {
           method: "POST",
           headers: {

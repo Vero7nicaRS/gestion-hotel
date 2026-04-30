@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { API_BASE_URL } from '../api/api'
 import '../styles/Disponibilidad.css'
@@ -65,18 +65,23 @@ function CardHabitacion({ hab }) {
 }
 
 function CardSala({ sala }) {
-  const disponible = sala.estado === 'DISPONIBLE'
   const tipo = sala.tipo_sala || {}
+  const hayDisponible = sala.disponible_manana || sala.disponible_tarde
 
   return (
-    <div className={`disp-card ${disponible ? 'disp-card--disponible' : 'disp-card--ocupada'}`}>
+    <div className={`disp-card ${hayDisponible ? 'disp-card--disponible' : 'disp-card--ocupada'}`}>
       <div className="disp-card__header">
-        <span className={`disp-card__tipo ${disponible ? 'disp-tipo--disponible' : 'disp-tipo--ocupada'}`}>
+        <span className={`disp-card__tipo ${hayDisponible ? 'disp-tipo--disponible' : 'disp-tipo--ocupada'}`}>
           {tipo.nombre || 'Sala'}
         </span>
-        <span className={`disp-card__badge ${disponible ? 'disp-badge--disponible' : 'disp-badge--ocupada'}`}>
-          {disponible ? 'Disponible' : 'Ocupada'}
-        </span>
+        <div className="disp-jornadas">
+          <span className={`disp-jornada ${sala.disponible_manana ? 'disp-jornada--disponible' : 'disp-jornada--ocupada'}`}>
+            Mañana
+          </span>
+          <span className={`disp-jornada ${sala.disponible_tarde ? 'disp-jornada--disponible' : 'disp-jornada--ocupada'}`}>
+            Tarde
+          </span>
+        </div>
       </div>
 
       <div className="disp-card__body">
@@ -85,11 +90,11 @@ function CardSala({ sala }) {
           <p className="disp-info__numero">
             <span className="disp-info__hash">#</span> Sala {sala.numero}
           </p>
-          <p className="disp-info__label">{disponible ? 'Precio' : 'Horario'}</p>
-          <p className={`disp-info__valor ${disponible ? 'disp-valor--disponible' : 'disp-valor--ocupada'}`}>
-            {disponible ? (tipo.precio + ' €' || '— €') : (sala.horario || '—')}
+          <p className="disp-info__label">{hayDisponible ? 'Precio' : 'Horario'}</p>
+          <p className={`disp-info__valor ${hayDisponible ? 'disp-valor--disponible' : 'disp-valor--ocupada'}`}>
+            {hayDisponible ? (tipo.precio + ' €' || '— €') : (sala.horario || '—')}
           </p>
-          {disponible && (
+          {hayDisponible && (
             <Link to={`/sala/${sala.id}`} className="disp-btn-ver">
               Ver
             </Link>
@@ -100,44 +105,50 @@ function CardSala({ sala }) {
   )
 }
 
+const hoy = new Date().toISOString().split('T')[0]
+
 export default function Disponibilidad() {
   const [habitaciones, setHabitaciones] = useState([])
   const [salas, setSalas] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loadingHab, setLoadingHab] = useState(true)
+  const [loadingSalas, setLoadingSalas] = useState(true)
   const [error, setError] = useState(null)
+  const [fecha, setFecha] = useState(hoy)
+  const [jornada, setJornada] = useState('')
 
+  // Habitaciones: se cargan una sola vez, no dependen de fecha/jornada
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [resHab, resSala] = await Promise.all([
-          fetch(`${API_BASE_URL}/habitaciones/`),
-          fetch(`${API_BASE_URL}/salas/`),
-        ])
-
-        if (!resHab.ok) throw new Error('Error al cargar habitaciones')
-        if (!resSala.ok) throw new Error('Error al cargar salas')
-
-        const [dataHab, dataSala] = await Promise.all([
-          resHab.json(),
-          resSala.json(),
-        ])
-  
-        setHabitaciones(Array.isArray(dataHab) ? dataHab : dataHab.results || [])
-        setSalas(Array.isArray(dataSala) ? dataSala : dataSala.results || [])
-        console.log("Habi: ", dataHab);
-        console.log("Sala: ", dataSala);
-
-
-      } catch (err) {
-        setError(err.message)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchData()
+    setLoadingHab(true)
+    fetch(`${API_BASE_URL}/habitaciones/`)
+      .then(res => {
+        if (!res.ok) throw new Error('Error al cargar habitaciones')
+        return res.json()
+      })
+      .then(data => setHabitaciones(Array.isArray(data) ? data : data.results || []))
+      .catch(err => setError(err.message))
+      .finally(() => setLoadingHab(false))
   }, [])
 
-  if (loading) return <div className="disp-estado">Cargando disponibilidad...</div>
+  // Salas: solo se refetchea cuando cambia la fecha
+  useEffect(() => {
+    setLoadingSalas(true)
+    fetch(`${API_BASE_URL}/salas/?fecha=${fecha}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Error al cargar salas')
+        return res.json()
+      })
+      .then(data => setSalas(Array.isArray(data) ? data : data.results || []))
+      .catch(err => setError(err.message))
+      .finally(() => setLoadingSalas(false))
+  }, [fecha])
+
+  // El filtro de jornada se aplica client-side sin llamar a la API
+  const salasFiltradas = useMemo(() => {
+    if (jornada === 'MANANA') return salas.filter(s => s.disponible_manana)
+    if (jornada === 'TARDE')  return salas.filter(s => s.disponible_tarde)
+    return salas
+  }, [salas, jornada])
+
   if (error) return <div className="disp-estado disp-estado--error">Error: {error}</div>
 
   return (
@@ -146,29 +157,63 @@ export default function Disponibilidad() {
         <h2 className="disp-titulo">
           <span className="disp-titulo__rojo">Reserva</span> Habitaciones
         </h2>
-        <div className="disp-grid">
-          {habitaciones.map(hab => (
-            <CardHabitacion key={hab.id} hab={hab} />
-          ))}
-          {habitaciones.length === 0 && (
-            <p className="disp-vacio">No hay habitaciones registradas.</p>
-          )}
-        </div>
+        {loadingHab ? (
+          <p className="disp-vacio">Cargando habitaciones...</p>
+        ) : (
+          <div className="disp-grid">
+            {habitaciones.map(hab => (
+              <CardHabitacion key={hab.id} hab={hab} />
+            ))}
+            {habitaciones.length === 0 && (
+              <p className="disp-vacio">No hay habitaciones registradas.</p>
+            )}
+          </div>
+        )}
       </section>
 
       <section className="disp-seccion">
         <h2 className="disp-titulo">
           <span className="disp-titulo__rojo">Reserva</span> Salas
         </h2>
-        <div className="disp-grid">
-          {salas.map(sala => (
-            <CardSala key={sala.id} sala={sala} />
-          ))}
-          {salas.length === 0 && (
-            <p className="disp-vacio">No hay salas registradas.</p>
-          )}
+
+        <div className="disp-filtros">
+          <input
+            type="date"
+            value={fecha}
+            onChange={e => setFecha(e.target.value)}
+            className="disp-filtro__fecha"
+          />
+          <div className="disp-filtro__jornadas">
+            {[
+              { valor: '',       etiqueta: 'Todas' },
+              { valor: 'MANANA', etiqueta: 'Mañana' },
+              { valor: 'TARDE',  etiqueta: 'Tarde' },
+            ].map(({ valor, etiqueta }) => (
+              <button
+                key={valor || 'todas'}
+                className={`disp-filtro__btn ${jornada === valor ? 'disp-filtro__btn--activo' : ''}`}
+                onClick={() => setJornada(valor)}
+              >
+                {etiqueta}
+              </button>
+            ))}
+          </div>
         </div>
+
+        {loadingSalas ? (
+          <p className="disp-vacio">Cargando salas...</p>
+        ) : (
+          <div className="disp-grid">
+            {salasFiltradas.map(sala => (
+              <CardSala key={sala.id} sala={sala} />
+            ))}
+            {salasFiltradas.length === 0 && (
+              <p className="disp-vacio">No hay salas disponibles para esta selección.</p>
+            )}
+          </div>
+        )}
       </section>
     </div>
   )
 }
+

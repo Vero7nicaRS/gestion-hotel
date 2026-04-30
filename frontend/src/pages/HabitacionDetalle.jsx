@@ -21,7 +21,7 @@ import iconoTelevision from "../assets/iconos/television.png";
 import iconoCoche from "../assets/iconos/parqueadero.png";
 import iconoCajaFuerte from "../assets/iconos/caja-fuerte.png";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+import { API_BASE_URL } from '../api/api';
 
 
 export default function HabitacionDetalle() {
@@ -94,8 +94,8 @@ export default function HabitacionDetalle() {
     // Obtener los datos de la API: habitación y su tipo de habitación.
     const fetchHabitacion = async () => {
       try {
-        // Se obtiene el tipo de habitación.
-        const responseHabitacion = await fetch(`${API_BASE}/api/tipos-habitacion/${id}/`);
+        // Se obtiene la habitación y su tipo anidado.
+        const responseHabitacion = await fetch(`${API_BASE_URL}/habitaciones/${id}/`);
         if (!responseHabitacion.ok){
           throw new Error(`ERROR HTTP: No se pudo cargar la habitación ${responseHabitacion.status}`);
         }
@@ -103,7 +103,7 @@ export default function HabitacionDetalle() {
         console.log('Habitaciones cargadas del API:', resultHabitacion);
 
         setHabitacion(resultHabitacion);
-        setTipo(resultHabitacion);
+        setTipo(resultHabitacion.tipo_habitacion);
       } catch (err) {
         /* Ignorar si el error de abort (no es un error real, 
         sino que es una señal de que el componente se desmontó antes
@@ -204,12 +204,14 @@ export default function HabitacionDetalle() {
 
 
       {/* Formulario de reserva */}
-      <div className="formulario">
-        <FormularioHabitacion
-          tipoHabitacion={tipo?.nombre || "Premium"} 
-          habitacionId={id}
-        />
-      </div>
+      {habitacion && (
+        <div className="formulario">
+          <FormularioHabitacion
+            tipoHabitacion={tipo?.nombre || ""}
+            habitacionId={id}
+          />
+        </div>
+      )}
     </div>
   );
 }
