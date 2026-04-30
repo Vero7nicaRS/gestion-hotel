@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "../styles/Formulario.css";
 
-export default function FormularioSala({tipoSala}) {
+export default function FormularioSala({tipoSala, salaId}) {
 
   const [salas, setSalas] = useState([]);
 
@@ -112,12 +112,12 @@ export default function FormularioSala({tipoSala}) {
       );
 
       if(!response.ok){
-  const errorData = await response.json();
-  console.log("Error backend:", errorData);
-  setMensaje("❌ Error: " + JSON.stringify(errorData));
-  return;
-}
-         const data = await response.json();
+        const errorData = await response.json();
+        console.log("Error backend:", errorData);
+        setMensaje("❌ Error: " + JSON.stringify(errorData));
+        return;
+      }
+      const data = await response.json();
       setMensaje(`✅ Reserva pendiente de confirmación. La confirmación sera enviada al correo ${formData.email}`);
       setFormData({
         nombre: "",
@@ -135,6 +135,17 @@ export default function FormularioSala({tipoSala}) {
       alert("Error creando reserva");
     }
   };
+
+  // poner id seleccionado en disponibilidad en el formulario
+  useEffect(() => {
+    if (salaId) {
+      setFormData((prev) => ({
+        ...prev,
+        sala: salaId.toString(),
+      }));
+    }
+  }, [salaId]);
+    
 
   return (
 
