@@ -202,7 +202,9 @@ function SalaDetalle() {
 
       {/* Formulario de reserva */}
       <div className="formulario">
-        <FormularioSala tipoSala= {tipoSala?.nombre || "eco"}/>
+        <FormularioSala 
+          tipoSala= {tipoSala?.nombre || "eco"}
+          salaId={id}/>
       </div>
       
     </div>
