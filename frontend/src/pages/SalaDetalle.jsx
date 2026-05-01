@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { API_BASE_URL } from '../api/api'
-import { useParams } from "react-router-dom";
+import { useParams, useLocation} from "react-router-dom";
 import '../styles/SalaDetalle.css';
 import FormularioSala from "../components/FormularioSala";
 import ImagenesSalas from '../data/imagenesSalas';
@@ -15,17 +15,23 @@ import ComodidadesHotel from '../components/ComodidadesHotel';
 
 function SalaDetalle() {
 
+  // Se obtienen parámetros de la URL.
   const { id } = useParams();
+  const location = useLocation(); // Se obtiene la ruta utilizada
+  const esTipo = location.pathname.startsWith("/tipo-sala");
 
-  // Estado para los tipos de sala
+  // Estado para useEffect (sala y tipo de sala)
+  const [sala, setSala] = useState(null);
   const [tipoSala, setTipoSala] = useState(null);
+
+  console.log("ID de la sala: ", id, "Nombre: ", tipoSala?.nombre);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Estado para la imagen seleccionada de cada sala (para la galería)
   const [fotoActual, setFotoActual] = useState(null);
   
-  /* Se obtienen las fotos pasándole el nombre de la sala (tipoSala: se ha obtenido de la API).
+  /* Se obtienen las fotos pasándole el nombre de la sala (sala: se ha obtenido de la API).
      Si el nombre de la sala no existe, se muestra un array vacío (no se muestran fotos). 
   */
   const nombreSala = tipoSala?.nombre?.toLowerCase() || "";
@@ -86,16 +92,29 @@ function SalaDetalle() {
 
   // Cargar tipos de sala desde la API
   useEffect(() => {
-    const fetchTipoSala = async () => {
+    const fetchSala = async () => {
+      console.log( "Lanzando fetch a la API...");
+      setLoading(true);
+      setError(null);
       try {
+        const url = esTipo
+          ? `${API_BASE_URL}/tipo-salas/${id}/`
+          : `${API_BASE_URL}/salas/${id}/`;
 
-        const responseSala = await fetch(`${API_BASE_URL}/tipo-salas/${id}/`)
-        if (!responseSala.ok) throw new Error('Error al cargar las salas')
+        const responseSala = await fetch(url)
+//        const responseSala = await fetch(`${API_BASE_URL}/salas/${id}/`);
+        if (!responseSala.ok) throw new Error('Error al cargar las salas');
 
-        const data = await responseSala.json()
-        console.log('Salas cargadas del API:', data)
-        setTipoSala(data)
-        setLoading(false)
+        const data = await responseSala.json();
+        console.log('Salas cargadas del API:', data);
+
+        if(esTipo){
+          setSala(null);
+          setTipoSala(data);
+        }else{
+          setSala(data);
+          setTipoSala(data.tipo_sala);
+        }
       } catch (err) {
 
         /* Ignorar si el error de abort (no es un error real, 
@@ -107,15 +126,15 @@ function SalaDetalle() {
         }
 
         console.error("Error al obtener los datos de la sala:", err.message);
-        setError(err.message)
+        setError(err.message);
 
       } finally {
         console.log("Fetch finalizado.");
         setLoading(false); // Se pone a false "loading", ya que se han cargado los datos.
       }
     }
-    fetchTipoSala()
-  }, [id])
+    fetchSala();
+  }, [id, esTipo])
 
   // Manejar cambios en el formulario
   const handleInputChange = (e) => {
@@ -140,8 +159,15 @@ function SalaDetalle() {
 }, [nombreSala]);
 
 
-  if (loading) return <div className="loading">Cargando salas...</div>
-  if (error) return <div className="error">Error: {error}</div>
+/* Renderizados condicionales:
+      - Loading.
+      - Error.
+    Muestra un mensaje si está cargando la aplicación o si hay un error.
+    En caso contrario, aparecerá el contenido de la aplicación 
+  */
+
+  if (loading) return <p className="hd-info">🔄 Cargando...</p>;
+  if (error) return <p className="hd-error">{error}</p>;
 
   return (
     <div className='sd-contenedor'>
@@ -199,12 +225,12 @@ function SalaDetalle() {
 
       {/* Reglas: comunes y salas */}
       <ReglasHotel tipo="sala" />
-
+      
       {/* Formulario de reserva */}
       <div className="formulario">
         <FormularioSala 
-          tipoSala= {tipoSala?.nombre || "eco"}
-          salaId={id}/>
+          tipoSala= {tipoSala?.nombre || ""}
+          salaId={ esTipo ? null : id}/>
       </div>
       
     </div>
