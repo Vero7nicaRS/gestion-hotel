@@ -5,6 +5,7 @@ export default function FormularioSala({tipoSala, salaId}) {
 
   const [salas, setSalas] = useState([]);
 
+  console.log("Tipo Sala: ", tipoSala, " Numero de la sala: ", salaId)
   const [formData, setFormData] = useState({
     nombre: "",
     email: "",
@@ -138,16 +139,12 @@ export default function FormularioSala({tipoSala, salaId}) {
 
   // poner id seleccionado en disponibilidad en el formulario
   useEffect(() => {
-    if (salaId) {
-      setFormData((prev) => ({
-        ...prev,
-        sala: salaId.toString(),
-      }));
-    }
+    setFormData((prev) => ({
+      ...prev,
+      sala: salaId ? salaId.toString() : "",
+    }));
   }, [salaId]);
-    
-
-  return (
+    return (
 
     <form onSubmit={handleSubmit} className="card-formulario">
       <h1 className="titulo"><strong>Reservar</strong> Sala</h1>
@@ -171,13 +168,24 @@ export default function FormularioSala({tipoSala, salaId}) {
 
       {/* SALAS */}
       <div className="grupo-formulario">
-          <select  name="sala"value={formData.sala}onChange={handleChange}required>
-            <option value="" disabled hidden></option>
+          <select 
+            name="sala"
+            value={formData.sala}
+            onChange={handleChange}
+            required = {salasFiltradas.length >0}
+            disabled = {salasFiltradas.length === 0}
+          >
+            <option value="">
+              {salasFiltradas.length === 0
+                ? "No hay salas disponibles"
+                : "Seleccione una sala..."}
+            </option>
             {salasFiltradas.map((s) => (
-              <option key={s.id} value={s.id}>
-                Sala {s.numero} - {s.tipo_sala.nombre}
-              </option>
-            ))}
+                            <option key={s.id} value={s.id}>
+                              Sala {s.numero} - {s.tipo_sala.nombre}
+                            </option>
+                          ))
+            }
           </select>
           <label>Salas</label>
         </div>
