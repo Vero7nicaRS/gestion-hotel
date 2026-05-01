@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation} from "react-router-dom";
 import "../styles/HabitacionDetalle.css";
 import ReglasHotel from "../components/ReglasHotel";
 import ComodidadesHotel from "../components/ComodidadesHotel";
@@ -25,11 +25,17 @@ import { API_BASE_URL } from '../api/api';
 
 
 export default function HabitacionDetalle() {
-  const { id } = useParams();
 
+  // Se obtienen parámetros de la URL.
+  const { id } = useParams();
+  console.log("Identificador", id);
+  const location = useLocation(); // Se obtiene la ruta utilizada
+  const esRutaTipoHab = location.pathname.startsWith("/tipo-habitacion");
+  
   // Estados de UseFEtch
   const [habitacion, setHabitacion] = useState(null); // Datos de la habitación
   const [tipo, setTipo] = useState(null); // Datos del tipo de habitación 
+
 
   const [loading, setLoading] = useState(true); // Indica si los datos están cargados o no.
   const [error, setError] = useState(null); // Indica si hay un error o no.
@@ -95,15 +101,25 @@ export default function HabitacionDetalle() {
     const fetchHabitacion = async () => {
       try {
         // Se obtiene la habitación y su tipo anidado.
-        const responseHabitacion = await fetch(`${API_BASE_URL}/habitaciones/${id}/`);
+        const url = esRutaTipoHab 
+            ? `${API_BASE_URL}/tipos-habitacion/${id}/`
+            : `${API_BASE_URL}/habitaciones/${id}/`;
+//        const responseHabitacion = await fetch(`${API_BASE_URL}/habitaciones/${id}/`);
+        
+        const responseHabitacion = await fetch (url);
         if (!responseHabitacion.ok){
           throw new Error(`ERROR HTTP: No se pudo cargar la habitación ${responseHabitacion.status}`);
         }
         const resultHabitacion = await responseHabitacion.json();
         console.log('Habitaciones cargadas del API:', resultHabitacion);
+        if(esRutaTipoHab){
+          setHabitacion(null);
+          setTipo(resultHabitacion);
+        }else{
+          setHabitacion(resultHabitacion);
+          setTipo(resultHabitacion.tipo_habitacion);
+        }
 
-        setHabitacion(resultHabitacion);
-        setTipo(resultHabitacion.tipo_habitacion);
       } catch (err) {
         /* Ignorar si el error de abort (no es un error real, 
         sino que es una señal de que el componente se desmontó antes
@@ -122,7 +138,7 @@ export default function HabitacionDetalle() {
       }
     }
     fetchHabitacion();
-  }, [id]);
+  }, [id, esRutaTipoHab]);
 
   /* Renderizados condicionales:
       - Loading.
@@ -204,14 +220,14 @@ export default function HabitacionDetalle() {
 
 
       {/* Formulario de reserva */}
-      {habitacion && (
+      {
         <div className="formulario">
           <FormularioHabitacion
             tipoHabitacion={tipo?.nombre || ""}
-            habitacionId={id}
+            habitacionId={esRutaTipoHab ? null : id }
           />
         </div>
-      )}
+      }
     </div>
   );
 }
