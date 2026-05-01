@@ -212,14 +212,15 @@
   background: #fff;
   font-family: 'poppinsR', sans-serif;
   font-size: 0.82rem;
-  color: #555;
+  color: #555555;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .disp-filtro__btn:hover {
   border-color: #ED1C24;
-  color: #ED1C24;
+  background-color:#e8666a;
+  color: white;
 }
 
 .disp-filtro__btn--activo {
