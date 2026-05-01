@@ -18,7 +18,7 @@ function SalaDetalle() {
   // Se obtienen parámetros de la URL.
   const { id } = useParams();
   const location = useLocation(); // Se obtiene la ruta utilizada
-  const esTipo = location.pathname.startsWith("/tipo-sala");
+  const esRutaTipoSala = location.pathname.startsWith("/tipo-sala");
 
   // Estado para useEffect (sala y tipo de sala)
   const [sala, setSala] = useState(null);
@@ -97,7 +97,7 @@ function SalaDetalle() {
       setLoading(true);
       setError(null);
       try {
-        const url = esTipo
+        const url = esRutaTipoSala
           ? `${API_BASE_URL}/tipo-salas/${id}/`
           : `${API_BASE_URL}/salas/${id}/`;
 
@@ -108,7 +108,7 @@ function SalaDetalle() {
         const data = await responseSala.json();
         console.log('Salas cargadas del API:', data);
 
-        if(esTipo){
+        if(esRutaTipoSala){
           setSala(null);
           setTipoSala(data);
         }else{
@@ -134,7 +134,7 @@ function SalaDetalle() {
       }
     }
     fetchSala();
-  }, [id, esTipo])
+  }, [id, esRutaTipoSala])
 
   // Manejar cambios en el formulario
   const handleInputChange = (e) => {
@@ -230,7 +230,7 @@ function SalaDetalle() {
       <div className="formulario">
         <FormularioSala 
           tipoSala= {tipoSala?.nombre || ""}
-          salaId={ esTipo ? null : id}/>
+          salaId={ esRutaTipoSala ? null : id}/>
       </div>
       
     </div>
