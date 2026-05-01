@@ -3,10 +3,9 @@ import { API_BASE_URL } from '../api/api'
 import { useParams, useLocation} from "react-router-dom";
 import '../styles/SalaDetalle.css';
 import FormularioSala from "../components/FormularioSala";
-import ImagenesSalas from '../data/imagenesSalas';
+import ImagenesSalas from '../data/ImagenesSalas';
 
 // Iconos
-
 import iconoBano from "../assets/iconos/bano.png";
 
 
@@ -24,14 +23,14 @@ function SalaDetalle() {
   const [sala, setSala] = useState(null);
   const [tipoSala, setTipoSala] = useState(null);
 
-  console.log("ID de la sala: ", id, "Nombre: ", tipoSala?.nombre);
+  //console.log("ID de la sala: ", id, "Nombre: ", tipoSala?.nombre);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Estado para la imagen seleccionada de cada sala (para la galería)
   const [fotoActual, setFotoActual] = useState(null);
   
-  /* Se obtienen las fotos pasándole el nombre de la sala (sala: se ha obtenido de la API).
+  /* Se obtienen las fotos pasándole el nombre de la sala (tipoSala: se ha obtenido de la API).
      Si el nombre de la sala no existe, se muestra un array vacío (no se muestran fotos). 
   */
   const nombreSala = tipoSala?.nombre?.toLowerCase() || "";
@@ -153,10 +152,11 @@ function SalaDetalle() {
 
 
   useEffect(() => {
-  if (fotosSalas.length > 0) {
-    setFotoActual(fotosSalas[0]);
-  }
-}, [nombreSala]);
+    if (fotosSalas.length > 0) {
+      setFotoActual(fotosSalas[0]);
+    }
+    console.log("Cambiando foto de Sala...")
+  }, [nombreSala]);
 
 
 /* Renderizados condicionales:
