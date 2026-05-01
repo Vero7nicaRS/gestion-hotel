@@ -4,6 +4,8 @@ import "../styles/HabitacionDetalle.css";
 import ReglasHotel from "../components/ReglasHotel";
 import ComodidadesHotel from "../components/ComodidadesHotel";
 
+import ImagenesHabitaciones from '../data/ImagenesHabitaciones';
+
 // Imágenes de las habitaciones 
 import fotoBano from "../assets/habitacion/premium-bano.png";
 import fotoCocina from "../assets/habitacion/premium-cocina.png";
@@ -42,15 +44,23 @@ export default function HabitacionDetalle() {
  
 
   // Estados para las fotos 
-  const fotosHabitacion = [
+/*  const fotosHabitacion = [
     {id: "habitacion", src: fotoHabitacion},
     {id: "bano", src: fotoBano},
     {id: "cocina", src: fotoCocina},
     {id: "estudio", src: fotoEstudio}
 //    fotoHabitacion, fotoBano, fotoCocina, fotoEstudio
-  ];
-  const [fotoActual, setFotoActual] = useState(fotosHabitacion[0]);
+  ]; */
+
+  const [fotoActual, setFotoActual] = useState(null);
   
+  /* Se obtienen las fotos pasándole el nombre de la sala (tipoSala: se ha obtenido de la API).
+     Si el nombre de la sala no existe, se muestra un array vacío (no se muestran fotos). 
+  */
+  const nombreSala = tipo?.nombre?.toLowerCase() || "";
+  const fotosHabitaciones = ImagenesHabitaciones[nombreSala] || []; 
+
+
   /* Manejador para las fotos: al seleccionar una imagen, 
   se coloca esa imagen como fotoHabitacionSeleccionada, 
   que es la que se muestra como imagen principal (grande). */
@@ -60,26 +70,26 @@ export default function HabitacionDetalle() {
 
   const handleCambiarFotoHabitacionSiguiente = () => {
     //setFotoIndice((indice_foto) => (indice_foto + 1) % fotosHabitacion.length);
-    const indiceActual = fotosHabitacion.findIndex(
+    const indiceActual = fotosHabitaciones.findIndex(
       (foto) => foto.id === fotoActual.id
     );
 
     const anteriorIndice =
-      (indiceActual + 1) % fotosHabitacion.length;
+      (indiceActual + 1) % fotosHabitaciones.length;
 
-    setFotoActual(fotosHabitacion[anteriorIndice]);
+    setFotoActual(fotosHabitaciones[anteriorIndice]);
     }
 
   const handleCambiarFotoHabitacionAnterior = () => {
     //setFotoIndice((indice_foto) => (indice_foto - 1 + fotosHabitacion.length) % fotosHabitacion.length);
-    const indiceActual = fotosHabitacion.findIndex(
+    const indiceActual = fotosHabitaciones.findIndex(
       (foto) => foto.id === fotoActual.id
     );
 
     const anteriorIndice =
-      (indiceActual - 1 + fotosHabitacion.length) % fotosHabitacion.length;
+      (indiceActual - 1 + fotosHabitaciones.length) % fotosHabitaciones.length;
 
-    setFotoActual(fotosHabitacion[anteriorIndice]);
+    setFotoActual(fotosHabitaciones[anteriorIndice]);
   }
 
   /* Desde la API el campo "precio" puede venir en decimal.
@@ -140,6 +150,12 @@ export default function HabitacionDetalle() {
     fetchHabitacion();
   }, [id, esRutaTipoHab]);
 
+    useEffect(() => {
+      if (fotosHabitaciones.length > 0) {
+        setFotoActual(fotosHabitaciones[0]);
+      }
+    }, [nombreSala]);
+
   /* Renderizados condicionales:
       - Loading.
       - Error.
@@ -157,21 +173,23 @@ export default function HabitacionDetalle() {
       {/* Miniaturas a la izquierda e imagen principal a la derecha en grande */}
       <div className="hd-contenedor-fotos">
         <div className="hd-contenedor-miniaturas">
-          {fotosHabitacion.map((foto) => (
+          {fotosHabitaciones.map((foto) => (
             <div
               key={foto.id}
-              className={`hd-miniatura ${fotoActual.id === foto.id ? "activa" : ""}`}
+              className={`hd-miniatura ${fotoActual?.id === foto.id ? "activa" : ""}`}
               onClick={() => handleCambiarFotoHabitacion(foto)}
             >
               <img src={foto.src} alt="Imagen miniatura" />
             </div>
           ))}
         </div>
-        
-        <div className="hd-foto-principal">
-          <img src={fotoActual.src} alt="Imagen principal"  />
+        {fotoActual && (
+          <div className="hd-foto-principal">
+            <img src={fotoActual.src} alt="Imagen principal"  />
+          </div>
+        )}
         </div>
-      </div>
+        
       
       {/* Botones para desplazar las fotos: Anterior y Siguiente */}
       <div className="hd-contenedor-botones-fotos"> 
