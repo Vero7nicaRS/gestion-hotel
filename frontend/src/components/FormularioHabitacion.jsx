@@ -3,6 +3,8 @@ import "../styles/Formulario.css";
 import { API_BASE_URL } from "../api/api";
 
 export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
+
+   console.log("Tipo Habitacion: ", tipoHabitacion, " Numero de la habitacion: ", habitacionId)
   const [formData, setFormData] = useState({
     nombre: "",
     email: "",
@@ -20,11 +22,15 @@ export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
   const [noches, setNoches] = useState(0);
 
   //filtro: disponibles del mismo tipo, sin duplicados
-  const habitacionesFiltradas = habitaciones.filter((h, i, arr) =>
-    arr.findIndex(x => x.id === h.id) === i &&
-    h.estado === "DISPONIBLE" &&
-    (!tipoHabitacion || h.tipo_habitacion?.nombre?.toUpperCase() === tipoHabitacion.toUpperCase())
-  );
+  const habitacionesFiltradas = tipoHabitacion
+  ? habitaciones.filter(
+      (h) =>
+        h.estado === "DISPONIBLE" &&
+        h.tipo_habitacion &&
+        h.tipo_habitacion.nombre &&
+        h.tipo_habitacion?.nombre?.toLowerCase() === tipoHabitacion?.toLowerCase?.()
+    )
+  : habitaciones.filter((h) => h.estado === "DISPONIBLE");
 
   //Traer lista de habitaciones
   useEffect(() => {
@@ -64,17 +70,10 @@ export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
   }, [formData, habitaciones]);
   // Obtener la habitación seleccionada directamente de la API y pre-seleccionarla
   useEffect(() => {
-    if (!habitacionId) return;
-    fetch(`${API_BASE_URL}/habitaciones/${habitacionId}/`)
-      .then((res) => res.json())
-      .then((room) => {
-        setFormData((prev) => ({ ...prev, habitacion: String(room.id) }));
-        setHabitaciones((prev) => {
-          if (prev.some((h) => h.id === room.id)) return prev;
-          return [room, ...prev];
-        });
-      })
-      .catch((err) => console.error(err));
+    setFormData((prev) => ({
+      ...prev,
+      habitacion: habitacionId ? habitacionId.toString() : "",
+    }));
   }, [habitacionId]);
     
   //Actualizar inputs usados por el cliente
@@ -178,13 +177,24 @@ export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
       <div className="grid-habitacion">
 
         <div className="grupo-formulario">
-          <select  name="habitacion"value={formData.habitacion}onChange={handleChange}required>
-            <option value="" disabled hidden></option>
+          <select  
+            name="habitacion"
+            value={formData.habitacion}
+            onChange={handleChange}
+            required = {habitacionesFiltradas.length >0}
+            disabled = {habitacionesFiltradas.length === 0}
+          >
+            <option value="">
+              {habitacionesFiltradas.length === 0
+                ? "No hay habitaciones disponibles"
+                : "Seleccione una habitacion..."}
+            </option>
             {habitacionesFiltradas.map((h) => (
-              <option key={h.id} value={h.id}>
-                Habitación {h.numero} {h.tipo_habitacion?.nombre}
-              </option>
-            ))}
+                <option key={h.id} value={h.id}>
+                  Habitación {h.numero} {h.tipo_habitacion?.nombre}
+                </option>
+              ))
+            }
           </select>
           <label>Habitación</label>
         </div>
