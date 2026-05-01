@@ -200,8 +200,9 @@ export default function Disponibilidad() {
           </div>
         </div>
 
-        {loadingSalas ? (
-          <p className="disp-vacio">Cargando salas...</p>
+        {/*
+          {loadingSalas ? (
+          <p className="disp-vacio">Cargando disponibilidad de salas...</p>
         ) : (
           <div className="disp-grid">
             {salasFiltradas.map(sala => (
@@ -212,6 +213,23 @@ export default function Disponibilidad() {
             )}
           </div>
         )}
+        */}
+
+        {loadingSalas && (
+          <p className="disp-vacio">Consultando la disponibilidad para la fecha indicada...</p>
+        )}
+
+        <div className="disp-grid">
+          {salasFiltradas.map(sala => (
+            <CardSala key={sala.id} sala={sala} />
+          ))}
+
+          {!loadingSalas && salasFiltradas.length === 0 && (
+            <p className="disp-vacio">No hay salas disponibles para esta selección.</p>
+          )}
+        </div>
+        
+        
       </section>
     </div>
   )
