@@ -106,7 +106,7 @@ function NavBar() {
                 <Fragment key={habitacion.id}>
                   <NavDropdown.Item 
                     as={Link} 
-                    to={`/habitacion/${habitacion.id}`}>
+                    to={`/tipo-habitacion/${habitacion.id}`}>
                       {habitacion.nombre}
                   </NavDropdown.Item>
 
@@ -124,7 +124,7 @@ function NavBar() {
                 <Fragment key={sala.id}>
                   <NavDropdown.Item 
                     as={Link} 
-                    to={`/sala/${sala.id}`}>
+                    to={`/tipo-sala/${sala.id}`}>
                       {sala.nombre}
                   </NavDropdown.Item>
 
