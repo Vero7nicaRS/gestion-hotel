@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.decorators import api_view
 from .models import Habitacion, TipoHabitacion, Sala, TipoSala, Cliente, Reserva, ReservaHabitacion, ReservaSala
-from .serializer import HabitacionSerializer, TipoHabitacionSerializer, ReservaSerializer, SalaSerializer, TipoSalaSerializer, ClienteSerializer, ReservaHabitacionSerializer, ReservaHabitacionSerializer
+from .serializer import HabitacionSerializer, TipoHabitacionSerializer, ReservaSerializer,ReservaSalaSerializer, SalaSerializer, TipoSalaSerializer, ClienteSerializer, ReservaHabitacionSerializer, ReservaHabitacionSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Q
@@ -11,6 +11,7 @@ from .utils import enviar_email_confirmacion, enviar_email_cancelacion
 from .serializer import ContactoSerializer
 from django.core.mail import send_mail
 from django.conf import settings
+from datetime import date
 
 def obtener_o_crear_cliente(request):
     datos_cliente = request.data.get("cliente")
@@ -20,8 +21,11 @@ def obtener_o_crear_cliente(request):
             status=400
         )
     clientes, _ = Cliente.objects.get_or_create(
-        email=datos_cliente["email"],
-        defaults={"nombre": datos_cliente["nombre"]}
+    email=datos_cliente["email"],
+    defaults={
+        "nombre": datos_cliente["nombre"],
+        "telefono": datos_cliente["telefono"]
+        }
     )
     return clientes,  None
 
@@ -276,15 +280,64 @@ class TipoHabitacionViewSet(viewsets.ModelViewSet):
 
 
 class HabitacionViewSet(viewsets.ModelViewSet):
-    queryset = Habitacion.objects.all().order_by('numero') # Obtener la informacion
     serializer_class = HabitacionSerializer
     lookup_field = 'pk'
 
+    def get_queryset(self):
+        queryset = Habitacion.objects.all().order_by('numero')
+        
+        tipo_id = self.request.query_params.get('tipo_habitacion')
+
+        if tipo_id:
+            queryset = queryset.filter(tipo_habitacion_id=tipo_id)
+
+        return queryset
+
 
 class SalaViewSet(viewsets.ModelViewSet):
-    queryset = Sala.objects.all()
     serializer_class = SalaSerializer
     lookup_field = 'id'
+
+    def get_queryset(self):
+        from datetime import time as time_type, date as date_type
+        qs = Sala.objects.all()
+        tipo_id = self.request.query_params.get('tipo_sala')
+        if tipo_id:
+            qs = qs.filter(tipo_sala_id=tipo_id)
+        fecha_str = self.request.query_params.get('fecha')
+        jornada = self.request.query_params.get('jornada', '').upper()
+
+        if not fecha_str or jornada not in ('MANANA', 'TARDE'):
+            return qs
+
+        try:
+            fecha = date_type.fromisoformat(fecha_str)
+        except ValueError:
+            return qs
+
+        rangos = {
+            'MANANA': (time_type(8, 0), time_type(13, 0)),
+            'TARDE':  (time_type(13, 0), time_type(20, 0)),
+        }
+        h_inicio, h_fin = rangos[jornada]
+        ocupadas_ids = ReservaSala.objects.filter(
+            reserva__estado='CONFIRMADA',
+            fecha_uso=fecha,
+            hora_inicio__lt=h_fin,
+            hora_fin__gt=h_inicio,
+        ).values_list('sala_id', flat=True)
+        return qs.exclude(id__in=ocupadas_ids)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        fecha_str = self.request.query_params.get('fecha')
+        if fecha_str:
+            from datetime import date as date_type
+            try:
+                context['fecha'] = date_type.fromisoformat(fecha_str)
+            except ValueError:
+                pass
+        return context
 
 class TipoSalaViewSet(viewsets.ModelViewSet):
     queryset = TipoSala.objects.all()
@@ -318,6 +371,46 @@ class ReservaHabitacionView(APIView):
                 "confirmacion": clientes.email
             },status=201)
         return Response(serializer.errors, status=400)
+#Sala
+class ReservaSalaView(APIView):
+
+    def post(self, request):
+
+        clientes, error = obtener_o_crear_cliente(request)
+        if error:
+            return error
+
+        nueva_reserva = Reserva.objects.create(
+            cliente=clientes,
+            tipo_reserva="SALA",
+            fecha_reserva=date.today()
+        )
+
+        serializer = ReservaSalaSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save(reserva=nueva_reserva)
+
+            return Response({
+                "mensaje": f"Reserva de sala creada #{nueva_reserva.id}",
+                "confirmacion_a": clientes.email
+            }, status=201)
+
+        return Response(serializer.errors, status=400)
+    
+    
+
+
+class HabitacionListView(ListAPIView):
+    def get_queryset(self):
+        return Habitacion.objects.filter(estado="DISPONIBLE")
+    serializer_class = HabitacionSerializer
+
+class SalaListView(ListAPIView):
+    def get_queryset(self):
+        return Sala.objects.filter(estado="DISPONIBLE")
+    serializer_class = SalaSerializer
+
     
 class ContactoAPIView(APIView):
     authentication_classes = [] 
@@ -350,7 +443,3 @@ class ContactoAPIView(APIView):
             status=status.HTTP_201_CREATED,
         )
     
-class HabitacionListView(ListAPIView):
-    def get_queryset(self):
-        return Habitacion.objects.filter(estado="DISPONIBLE")
-    serializer_class = HabitacionSerializer

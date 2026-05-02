@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from .models import Habitacion, TipoHabitacion, TipoSala, Sala, Cliente, Reserva, ReservaSala, ReservaHabitacion
+from datetime import date, time as time_type
 
+MANANA = (time_type(8, 0), time_type(13, 0))
+TARDE  = (time_type(13, 0), time_type(20, 0))
 
 class TipoHabitacionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,12 +29,68 @@ class TipoSalaSerializer(serializers.ModelSerializer):
         fields = ['id', 'nombre', 'precio', 'descripcion']
         read_only_fields = ['id']
 
+#class SalaSerializer(serializers.ModelSerializer):
+#    tipo_sala=TipoSalaSerializer(read_only=True)
+#    class Meta:
+#        model = Sala
+#        fields = ['id', 'numero', 'tipo_sala', 'estado']
+#        read_only_fields = ['id']
+
 class SalaSerializer(serializers.ModelSerializer):
-    idtipo_sala=TipoHabitacionSerializer(read_only=True)
+    tipo_sala = TipoSalaSerializer(read_only=True)
+
+    # 🔥 ESTO ES LO ÚNICO NUEVO (para POST y PATCH)
+    tipo_sala_id = serializers.PrimaryKeyRelatedField(
+        queryset=TipoSala.objects.all(),
+        source='tipo_sala',
+        write_only=True
+    )
+
+    # 🔹 ESTO YA LO TENÍAS (NO SE TOCA)
+    horario = serializers.SerializerMethodField()
+    disponible_manana = serializers.SerializerMethodField()
+    disponible_tarde = serializers.SerializerMethodField()
+
     class Meta:
         model = Sala
-        fields = ['id', 'numero', 'tipo_sala', 'estado']
+        fields = [
+            'id',
+            'numero',
+            'tipo_sala',
+            'tipo_sala_id',  # 👈 IMPORTANTE AÑADIR
+            'estado',
+            'horario',
+            'disponible_manana',
+            'disponible_tarde'
+        ]
         read_only_fields = ['id']
+
+    def _get_fecha(self):
+        return self.context.get('fecha', date.today())
+
+    def _ocupada_en_jornada(self, obj, h_inicio, h_fin):
+        return ReservaSala.objects.filter(
+            sala=obj,
+            reserva__estado='CONFIRMADA',
+            fecha_uso=self._get_fecha(),
+            hora_inicio__lt=h_fin,
+            hora_fin__gt=h_inicio,
+        ).exists()
+
+    def get_disponible_manana(self, obj):
+        return not self._ocupada_en_jornada(obj, *MANANA)
+
+    def get_disponible_tarde(self, obj):
+        return not self._ocupada_en_jornada(obj, *TARDE)
+
+    def get_horario(self, obj):
+        reserva = ReservaSala.objects.filter(
+            sala=obj,
+            reserva__estado='CONFIRMADA'
+        ).order_by('-reserva__fecha_reserva').first()
+        if reserva:
+            return f"{reserva.hora_inicio.strftime('%H:%M')} - {reserva.hora_fin.strftime('%H:%M')}"
+        return None
 
 class ClienteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -51,7 +110,7 @@ class ReservaSerializer(serializers.ModelSerializer):
 class ReservaSalaSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReservaSala
-        fields = ['id', 'reserva', 'sala','numero_personas','fecha_uso', 'hora_inicio', 'hora_fin']
+        fields = ['id', 'sala','numero_personas','fecha_uso', 'hora_inicio', 'hora_fin']
         read_only_fields = ['id']
 
 class ReservaHabitacionSerializer(serializers.ModelSerializer):
@@ -59,8 +118,6 @@ class ReservaHabitacionSerializer(serializers.ModelSerializer):
         model = ReservaHabitacion
         fields = ['id', 'reserva', 'habitacion','numero_personas','fecha_entrada', 'fecha_salida']
         read_only_fields = ['id','reserva']
-
-from rest_framework import serializers
 
 class ContactoSerializer(serializers.Serializer):
     nombre = serializers.CharField(max_length=100)
