@@ -19,15 +19,15 @@ export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
   const [noches, setNoches] = useState(0);
 
   //filtro para saber cual información mostrar segun el tipo de habitación
-  const habitacionesFiltradas = tipoHabitacion
-  ? habitaciones.filter(
-      (h) =>
-        h.estado === "DISPONIBLE" &&
-        h.tipo_habitacion &&
-        h.tipo_habitacion.nombre &&
-        h.tipo_habitacion.nombre.toUpperCase() === tipoHabitacion.toUpperCase()
-    )
-  : habitaciones.filter((h) => h.estado === "DISPONIBLE");
+  const habitacionesFiltradas = habitaciones.filter((h) => {
+    const coincideTipo = tipoHabitacion
+      ? h.tipo_habitacion?.nombre?.toUpperCase() === tipoHabitacion.toUpperCase()
+      : true;
+
+    const esSeleccionada = h.id === Number(formData.habitacion);
+
+    return (h.estado === "DISPONIBLE" && coincideTipo) || esSeleccionada;
+  });
 
   //Traer habitaciones
   useEffect(() => {

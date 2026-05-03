@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "../styles/Formulario.css";
 
-export default function FormularioSala({tipoSala}) {
+export default function FormularioSala({tipoSala, salaId}) {
 
   const [salas, setSalas] = useState([]);
 
@@ -49,6 +49,15 @@ export default function FormularioSala({tipoSala}) {
       .catch(err => console.error(err));
 
   },[]);
+      // poner id seleccionado en disponibilidad en el formulario
+  useEffect(() => {
+    if (salaId) {
+      setFormData((prev) => ({
+        ...prev,
+        salas: salaId.toString(),
+      }));
+    }
+  }, [salaId]);
 
   // change controlado + reset jornada
     const handleChange = (e) => {
