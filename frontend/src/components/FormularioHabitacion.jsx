@@ -196,7 +196,7 @@ export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
               ))
             }
           </select>
-          <label>Habitación</label>
+          {/* <label>Habitación</label> */}
         </div>
 
         <div className="grupo-formulario">
