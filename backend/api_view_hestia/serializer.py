@@ -37,14 +37,29 @@ class TipoSalaSerializer(serializers.ModelSerializer):
 #        read_only_fields = ['id']
 
 class SalaSerializer(serializers.ModelSerializer):
-    tipo_sala=TipoSalaSerializer(read_only=True)
+    tipo_sala = TipoSalaSerializer(read_only=True)
+    tipo_sala_id = serializers.PrimaryKeyRelatedField(
+        queryset=TipoSala.objects.all(),
+        source='tipo_sala',
+        write_only=True
+    )
+
     horario = serializers.SerializerMethodField()
     disponible_manana = serializers.SerializerMethodField()
     disponible_tarde = serializers.SerializerMethodField()
 
     class Meta:
         model = Sala
-        fields = ['id', 'numero', 'tipo_sala', 'estado', 'horario', 'disponible_manana', 'disponible_tarde']
+        fields = [
+            'id',
+            'numero',
+            'tipo_sala',
+            'tipo_sala_id',
+            'estado',
+            'horario',
+            'disponible_manana',
+            'disponible_tarde'
+        ]
         read_only_fields = ['id']
 
     def _get_fecha(self):

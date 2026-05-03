@@ -4,6 +4,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import {Link} from "react-router-dom";
 import '../styles/NavBar.css';
+
 import logoHestia from "../assets/logos/logo-hestia-blanco.png";
 import iconoUsuario from "../assets/navbar/usuario-blanco.png";
 import { useEffect, useState } from "react";

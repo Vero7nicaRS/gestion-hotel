@@ -280,9 +280,18 @@ class TipoHabitacionViewSet(viewsets.ModelViewSet):
 
 
 class HabitacionViewSet(viewsets.ModelViewSet):
-    queryset = Habitacion.objects.all().order_by('numero') # Obtener la informacion
     serializer_class = HabitacionSerializer
     lookup_field = 'pk'
+
+    def get_queryset(self):
+        queryset = Habitacion.objects.all().order_by('numero')
+        
+        tipo_id = self.request.query_params.get('tipo_habitacion')
+
+        if tipo_id:
+            queryset = queryset.filter(tipo_habitacion_id=tipo_id)
+
+        return queryset
 
 
 class SalaViewSet(viewsets.ModelViewSet):
@@ -292,6 +301,9 @@ class SalaViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         from datetime import time as time_type, date as date_type
         qs = Sala.objects.all()
+        tipo_id = self.request.query_params.get('tipo_sala')
+        if tipo_id:
+            qs = qs.filter(tipo_sala_id=tipo_id)
         fecha_str = self.request.query_params.get('fecha')
         jornada = self.request.query_params.get('jornada', '').upper()
 

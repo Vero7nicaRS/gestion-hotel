@@ -1,8 +1,7 @@
 import "./App.css";
-
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState } from "react";
-
+import "./App.css";
 import HabitacionDetalle from "./pages/HabitacionDetalle";
 import SalaDetalle from "./pages/SalaDetalle";
 import NavBar from "./components/NavBar";
@@ -19,16 +18,19 @@ import Disponibilidad from "./pages/Disponibilidad";
 import LoginAdmin from "./pages/LoginAdmin";
 
 function App() {
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
 
   const handleAdminLogin = () => {
-    setIsAdminAuthenticated(true);
+    setIsAdminLoggedIn(true);
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdminLoggedIn(false);
   };
 
   return (
     <BrowserRouter>
       <NavBar />
-
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/habitacion/:id" element={<HabitacionDetalle />} />
@@ -43,8 +45,21 @@ function App() {
         <Route path="/disponibilidad" element={<Disponibilidad />} />
         <Route path="/habitacion-formulario" element={<FormularioHabitacion />} />
         <Route path="/sala-formulario" element={<FormularioSala />} />
-        <Route path="/login-administracion" element={<LoginAdmin onLoginSuccess={handleAdminLogin} />}/>
-        <Route path="/admin" element={isAdminAuthenticated ? (<AdminDashboard />) : (<Navigate to="/login-administracion" replace />)}/>
+        <Route
+            path="/login-administracion"
+            element={<LoginAdmin onLoginSuccess={handleAdminLogin} />}
+          />
+
+        <Route
+            path="/admin"
+            element={
+              isAdminLoggedIn ? (
+                <AdminDashboard onLogout={handleAdminLogout} />
+              ) : (
+                <Navigate to="/login-administracion" replace />
+              )
+            }
+          />
         <Route path="*" element={<p>404: Página no encontrada</p>} />
       </Routes>
 

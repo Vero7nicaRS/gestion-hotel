@@ -378,7 +378,123 @@
   color: #777;
   margin-bottom: 1.2rem;
 }
+/* Bloque A: gestión de habitaciones */
+.admin-gestion-habitaciones {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e5e5e5;
+}
 
-.admin-btn {
-  text-decoration: none;  
+.admin-section-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--admin-dark);
+}
+
+.admin-gestion-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.admin-gestion-card {
+  background-color: var(--admin-light);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid var(--admin-secondary);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.admin-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.admin-form-group input,
+.admin-form-group select {
+  font-size: 0.9rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid #dcdcdc;
+}
+
+.admin-help-text {
+  font-size: 1rem;
+  color: #777;
+}
+
+/* Alertas de Bloque A */
+.admin-alert {
+  font-size: 0.85rem;
+  border-radius: 8px;
+  padding: 0.45rem 0.7rem;
+  margin-bottom: 0.9rem;
+}
+
+.admin-alert-success {
+  background-color: rgba(76, 175, 80, 0.08);
+  color: #2e7d32;
+  border: 1px solid rgba(76, 175, 80, 0.5);
+}
+
+.admin-alert-error {
+  background-color: rgba(244, 67, 54, 0.08);
+  color: #c62828;
+  border: 1px solid rgba(244, 67, 54, 0.5);
+}
+/* Botón principal de 'Guardar habitación' en Bloque A */
+.admin-gestion-habitaciones .admin-gestion-card:first-child .admin-btn-primary {
+  display: inline-flex;
+  align-self: center;          /* centrado respecto al formulario */
+  margin-top: 0.75rem;         /* espacio extra con el texto de arriba */
+  padding: 0.45rem 1.4rem;     /* bastante más bajo */
+  font-size: 0.9rem;
+  border-radius: 6px;
+}
+.admin-btn-small {
+  padding: 0.35rem 0.9rem;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  padding: 3px 15px;
+}
+.admin-habitaciones-list {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;   /* espacio vertical entre Hab. 1, Hab. 2, etc. */
+}
+
+.admin-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.admin-tabs button {
+  padding: 0.6rem 1.3rem;
+  border: 2px solid var(--admin-primary);
+  background-color: transparent;
+  color: var(--admin-primary);
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.admin-tabs button:hover {
+  background-color: var(--admin-primary);
+  color: var(--admin-light);
+}
+
+.admin-tabs button.active {
+  background-color: var(--admin-primary);
+  color: var(--admin-light);
 }
