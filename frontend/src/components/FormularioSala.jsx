@@ -5,6 +5,7 @@ export default function FormularioSala({tipoSala, salaId}) {
 
   const [salas, setSalas] = useState([]);
 
+  console.log("Tipo Sala: ", tipoSala, " Numero de la sala: ", salaId)
   const [formData, setFormData] = useState({
     nombre: "",
     email: "",
@@ -29,16 +30,17 @@ export default function FormularioSala({tipoSala, salaId}) {
   const fechaMax = tresMeses.toISOString().split("T")[0];
 
   const [mensaje, setMensaje] = useState("");
-  //filtro para saber cual información mostrar segun el tipo de sala
-  const salasFiltradas = tipoSala
-  ? salas.filter(
+  //filtro para saber cual información mostrar segun el tipo de sala, salas no siempre es array por eso
+  //se crea const salasArray
+  const salasArray = Array.isArray(salas) ? salas : [];
+
+const salasFiltradas = tipoSala
+  ? salasArray.filter(
       (s) =>
         s.estado === "DISPONIBLE" &&
-        s.tipo_sala &&
-        s.tipo_sala.nombre &&
-        s.tipo_sala?.nombre?.toLowerCase() === tipoSala?.toLowerCase?.()
+        s.tipo_sala?.nombre?.toLowerCase() === tipoSala?.toLowerCase()
     )
-  : salas.filter((h) => h.estado === "DISPONIBLE");
+  : salasArray.filter((h) => h.estado === "DISPONIBLE");
 
   // Obtener salas disponibles
   useEffect(()=>{
@@ -121,12 +123,12 @@ export default function FormularioSala({tipoSala, salaId}) {
       );
 
       if(!response.ok){
-  const errorData = await response.json();
-  console.log("Error backend:", errorData);
-  setMensaje("❌ Error: " + JSON.stringify(errorData));
-  return;
-}
-         const data = await response.json();
+        const errorData = await response.json();
+        console.log("Error backend:", errorData);
+        setMensaje("❌ Error: " + JSON.stringify(errorData));
+        return;
+      }
+      const data = await response.json();
       setMensaje(`✅ Reserva pendiente de confirmación. La confirmación sera enviada al correo ${formData.email}`);
       setFormData({
         nombre: "",
@@ -145,7 +147,14 @@ export default function FormularioSala({tipoSala, salaId}) {
     }
   };
 
-  return (
+  // poner id seleccionado en disponibilidad en el formulario
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      sala: salaId ? salaId.toString() : "",
+    }));
+  }, [salaId]);
+    return (
 
     <form onSubmit={handleSubmit} className="card-formulario">
       <h1 className="titulo"><strong>Reservar</strong> Sala</h1>
@@ -153,41 +162,54 @@ export default function FormularioSala({tipoSala, salaId}) {
 
       {/* DATOS PERSONALES */}
       <div className="grupo-formulario nombre">
-        <input type="text"name="nombre"placeholder=""value={formData.nombre}onChange={handleChange}required/>
-        <label>Nombre completo</label>
+        <input type="text"id="nombre" name="nombre"placeholder=""value={formData.nombre}onChange={handleChange}required/>
+        <label htmlFor="nombre">Nombre completo</label>
       </div>
       
       <div className="grupo-formulario">
-        <input type="email" name="email" placeholder="" value={formData.email} onChange={handleChange} required/>
-        <label>Correo</label>
+        <input type="email" id="email" name="email" placeholder="" value={formData.email} onChange={handleChange} required/>
+        <label htmlFor="email">Correo</label>
       </div>
       
       <div className="grupo-formulario">
-        <input type="text"name="telefono"placeholder=""value={formData.telefono} onChange={handleChange} pattern="[0-9]{10}"maxLength="10" required/>
-        <label>Teléfono</label>
+        <input type="text"id="telefono" name="telefono"placeholder=""value={formData.telefono} onChange={handleChange} pattern="[0-9]{10}"maxLength="10" required/>
+        <label htmlFor="telefono">Teléfono</label>
       </div>
 
       {/* SALAS */}
       <div className="grupo-formulario">
-          <select  name="sala"value={formData.sala}onChange={handleChange}required>
-            <option value="" disabled hidden></option>
+          <select 
+            name="sala"
+            id="sala"
+            value={formData.sala}
+            onChange={handleChange}
+            required = {salasFiltradas.length >0}
+            disabled = {salasFiltradas.length === 0}
+          >
+            <option value="">
+              {salasFiltradas.length === 0
+                ? "No hay salas disponibles"
+                : "Seleccione una sala..."}
+            </option>
             {salasFiltradas.map((s) => (
-              <option key={s.id} value={s.id}>
-                Sala {s.numero} - {s.tipo_sala.nombre}
-              </option>
-            ))}
+                <option key={s.id} value={s.id}>
+                  Sala {s.numero} - {s.tipo_sala.nombre}
+                </option>
+              ))
+            }
           </select>
-          <label>Salas</label>
+          {/* <label>Salas</label> */}
         </div>
       {/* PERSONAS */}
       <div className="grupo-formulario">
-        <input type="number"min={1} name="numero_personas"value={formData.numero_personas} onChange={handleChange}/>
-        <label>Numero de personas</label>  
+        <input type="number"min={1}id="numero_personas" name="numero_personas"value={formData.numero_personas} onChange={handleChange}/>
+        <label htmlFor="numero_personas">Numero de personas</label>  
       </div> 
       {/* FECHA DE USO */}
       <div className="grupo-formulario">
         <input
           type={formData.fecha_uso ? "date" : "text"}
+          id="fecha_uso"
           name="fecha_uso"
           value={formData.fecha_uso}
           onFocus={(e) => (e.target.type = "date")}
@@ -200,12 +222,13 @@ export default function FormularioSala({tipoSala, salaId}) {
           placeholder=" "
           required
         />
-        <label>Fecha de uso</label>
+        <label htmlFor="fecha_uso">Fecha de uso</label>
       </div>
 
       {/* JORNADA */}
       <div className="grupo-formulario">
         <select
+          id="jornada"
           name="jornada"
           value={formData.jornada}
           onChange={handleChange}
@@ -215,13 +238,14 @@ export default function FormularioSala({tipoSala, salaId}) {
           <option value="manana">Mañana</option>
           <option value="tarde">Tarde</option>
         </select>
-        <label>Jornada</label>
+        <label htmlFor="jornada">Jornada</label>
       </div>
 
       {/* HORA INICIO */}
       <div className="grupo-formulario">
         <select
           name="hora_inicio"
+          id="hora_inicio"
           value={formData.hora_inicio}
           onChange={handleChange}
           required
@@ -233,13 +257,14 @@ export default function FormularioSala({tipoSala, salaId}) {
             </option>
           ))}
         </select>
-        <label>Hora Inicio</label>
+        <label htmlFor="hora_inicio">Hora Inicio</label>
       </div>
 
       {/* HORA FIN */}
       <div className="grupo-formulario">
         <select
           name="hora_fin"
+          id="hora_fin"
           value={formData.hora_fin}
           onChange={handleChange}
           required
@@ -251,7 +276,7 @@ export default function FormularioSala({tipoSala, salaId}) {
             </option>
           ))}
         </select>
-        <label>Hora Fin</label>
+        <label htmlFor="hora_fin">Hora Fin</label>
       </div>
 
 

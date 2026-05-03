@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import "../styles/Formulario.css";
+import { API_BASE_URL } from "../api/api";
 
 export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
+
+   console.log("Tipo Habitacion: ", tipoHabitacion, " Numero de la habitacion: ", habitacionId)
   const [formData, setFormData] = useState({
     nombre: "",
     email: "",
@@ -18,22 +21,25 @@ export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
   const [cargando, setCargando] = useState(false);
   const [noches, setNoches] = useState(0);
 
-  //filtro para saber cual información mostrar segun el tipo de habitación
-  const habitacionesFiltradas = habitaciones.filter((h) => {
-    const coincideTipo = tipoHabitacion
-      ? h.tipo_habitacion?.nombre?.toUpperCase() === tipoHabitacion.toUpperCase()
-      : true;
+  //filtro: disponibles del mismo tipo, sin duplicados
+  const habitacionesFiltradas = tipoHabitacion
+  ? habitaciones.filter(
+      (h) =>
+        h.estado === "DISPONIBLE" &&
+        h.tipo_habitacion &&
+        h.tipo_habitacion.nombre &&
+        h.tipo_habitacion?.nombre?.toLowerCase() === tipoHabitacion?.toLowerCase?.()
+    )
+  : habitaciones.filter((h) => h.estado === "DISPONIBLE");
 
-    const esSeleccionada = h.id === Number(formData.habitacion);
-
-    return (h.estado === "DISPONIBLE" && coincideTipo) || esSeleccionada;
-  });
-
-  //Traer habitaciones
+  //Traer lista de habitaciones
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/habitaciones/")
+    fetch(`${API_BASE_URL}/habitaciones/`)
       .then((res) => res.json())
-      .then((data) => setHabitaciones(data))
+      .then((data) => {
+        const arr = Array.isArray(data) ? data : (data.results || []);
+        setHabitaciones(arr);
+      })
       .catch((err) => console.error(err));
   }, []);
 
@@ -62,14 +68,12 @@ export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
       setPrecioTotal(0);
     }
   }, [formData, habitaciones]);
-  // poner id seleccionado en disponibilidad en el formulario
+  // Obtener la habitación seleccionada directamente de la API y pre-seleccionarla
   useEffect(() => {
-    if (habitacionId) {
-      setFormData((prev) => ({
-        ...prev,
-        habitacion: habitacionId.toString(),
-      }));
-    }
+    setFormData((prev) => ({
+      ...prev,
+      habitacion: habitacionId ? habitacionId.toString() : "",
+    }));
   }, [habitacionId]);
     
   //Actualizar inputs usados por el cliente
@@ -85,7 +89,7 @@ export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
     setMensaje("");
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/api/reserva-habitacion/",
+        `${API_BASE_URL}/reserva-habitacion/`,
         {
           method: "POST",
           headers: {
@@ -173,15 +177,26 @@ export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
       <div className="grid-habitacion">
 
         <div className="grupo-formulario">
-          <select  name="habitacion"value={formData.habitacion}onChange={handleChange}required>
-            <option value="" disabled hidden></option>
+          <select  
+            name="habitacion"
+            value={formData.habitacion}
+            onChange={handleChange}
+            required = {habitacionesFiltradas.length >0}
+            disabled = {habitacionesFiltradas.length === 0}
+          >
+            <option value="">
+              {habitacionesFiltradas.length === 0
+                ? "No hay habitaciones disponibles"
+                : "Seleccione una habitacion..."}
+            </option>
             {habitacionesFiltradas.map((h) => (
-              <option key={h.id} value={h.id}>
-                Habitación {h.numero} {h.tipo_habitacion?.nombre}
-              </option>
-            ))}
+                <option key={h.id} value={h.id}>
+                  Habitación {h.numero} {h.tipo_habitacion?.nombre}
+                </option>
+              ))
+            }
           </select>
-          <label>Habitación</label>
+          {/* <label>Habitación</label> */}
         </div>
 
         <div className="grupo-formulario">

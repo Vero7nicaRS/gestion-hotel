@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation} from "react-router-dom";
 import "../styles/HabitacionDetalle.css";
 import ReglasHotel from "../components/ReglasHotel";
 import ComodidadesHotel from "../components/ComodidadesHotel";
+
+import ImagenesHabitaciones from '../data/ImagenesHabitaciones';
 
 // Imágenes de las habitaciones 
 import fotoBano from "../assets/habitacion/premium-bano.png";
@@ -21,30 +23,44 @@ import iconoTelevision from "../assets/iconos/television.png";
 import iconoCoche from "../assets/iconos/parqueadero.png";
 import iconoCajaFuerte from "../assets/iconos/caja-fuerte.png";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+import { API_BASE_URL } from '../api/api';
 
 
 export default function HabitacionDetalle() {
-  const { id } = useParams();
 
+  // Se obtienen parámetros de la URL.
+  const { id } = useParams();
+  console.log("Identificador", id);
+  const location = useLocation(); // Se obtiene la ruta utilizada
+  const esRutaTipoHab = location.pathname.startsWith("/tipo-habitacion");
+  
   // Estados de UseFEtch
   const [habitacion, setHabitacion] = useState(null); // Datos de la habitación
   const [tipo, setTipo] = useState(null); // Datos del tipo de habitación 
+
 
   const [loading, setLoading] = useState(true); // Indica si los datos están cargados o no.
   const [error, setError] = useState(null); // Indica si hay un error o no.
  
 
   // Estados para las fotos 
-  const fotosHabitacion = [
+/*  const fotosHabitacion = [
     {id: "habitacion", src: fotoHabitacion},
     {id: "bano", src: fotoBano},
     {id: "cocina", src: fotoCocina},
     {id: "estudio", src: fotoEstudio}
 //    fotoHabitacion, fotoBano, fotoCocina, fotoEstudio
-  ];
-  const [fotoActual, setFotoActual] = useState(fotosHabitacion[0]);
+  ]; */
+
+  const [fotoActual, setFotoActual] = useState(null);
   
+  /* Se obtienen las fotos pasándole el nombre de la sala (tipoSala: se ha obtenido de la API).
+     Si el nombre de la sala no existe, se muestra un array vacío (no se muestran fotos). 
+  */
+  const nombreSala = tipo?.nombre?.toLowerCase() || "";
+  const fotosHabitaciones = ImagenesHabitaciones[nombreSala] || []; 
+
+
   /* Manejador para las fotos: al seleccionar una imagen, 
   se coloca esa imagen como fotoHabitacionSeleccionada, 
   que es la que se muestra como imagen principal (grande). */
@@ -54,26 +70,26 @@ export default function HabitacionDetalle() {
 
   const handleCambiarFotoHabitacionSiguiente = () => {
     //setFotoIndice((indice_foto) => (indice_foto + 1) % fotosHabitacion.length);
-    const indiceActual = fotosHabitacion.findIndex(
+    const indiceActual = fotosHabitaciones.findIndex(
       (foto) => foto.id === fotoActual.id
     );
 
     const anteriorIndice =
-      (indiceActual + 1) % fotosHabitacion.length;
+      (indiceActual + 1) % fotosHabitaciones.length;
 
-    setFotoActual(fotosHabitacion[anteriorIndice]);
+    setFotoActual(fotosHabitaciones[anteriorIndice]);
     }
 
   const handleCambiarFotoHabitacionAnterior = () => {
     //setFotoIndice((indice_foto) => (indice_foto - 1 + fotosHabitacion.length) % fotosHabitacion.length);
-    const indiceActual = fotosHabitacion.findIndex(
+    const indiceActual = fotosHabitaciones.findIndex(
       (foto) => foto.id === fotoActual.id
     );
 
     const anteriorIndice =
-      (indiceActual - 1 + fotosHabitacion.length) % fotosHabitacion.length;
+      (indiceActual - 1 + fotosHabitaciones.length) % fotosHabitaciones.length;
 
-    setFotoActual(fotosHabitacion[anteriorIndice]);
+    setFotoActual(fotosHabitaciones[anteriorIndice]);
   }
 
   /* Desde la API el campo "precio" puede venir en decimal.
@@ -94,16 +110,26 @@ export default function HabitacionDetalle() {
     // Obtener los datos de la API: habitación y su tipo de habitación.
     const fetchHabitacion = async () => {
       try {
-        // Se obtiene el tipo de habitación.
-        const responseHabitacion = await fetch(`${API_BASE}/api/tipos-habitacion/${id}/`);
+        // Se obtiene la habitación y su tipo anidado.
+        const url = esRutaTipoHab 
+            ? `${API_BASE_URL}/tipos-habitacion/${id}/`
+            : `${API_BASE_URL}/habitaciones/${id}/`;
+//        const responseHabitacion = await fetch(`${API_BASE_URL}/habitaciones/${id}/`);
+        
+        const responseHabitacion = await fetch (url);
         if (!responseHabitacion.ok){
           throw new Error(`ERROR HTTP: No se pudo cargar la habitación ${responseHabitacion.status}`);
         }
         const resultHabitacion = await responseHabitacion.json();
         console.log('Habitaciones cargadas del API:', resultHabitacion);
+        if(esRutaTipoHab){
+          setHabitacion(null);
+          setTipo(resultHabitacion);
+        }else{
+          setHabitacion(resultHabitacion);
+          setTipo(resultHabitacion.tipo_habitacion);
+        }
 
-        setHabitacion(resultHabitacion);
-        setTipo(resultHabitacion);
       } catch (err) {
         /* Ignorar si el error de abort (no es un error real, 
         sino que es una señal de que el componente se desmontó antes
@@ -122,7 +148,13 @@ export default function HabitacionDetalle() {
       }
     }
     fetchHabitacion();
-  }, [id]);
+  }, [id, esRutaTipoHab]);
+
+    useEffect(() => {
+      if (fotosHabitaciones.length > 0) {
+        setFotoActual(fotosHabitaciones[0]);
+      }
+    }, [nombreSala]);
 
   /* Renderizados condicionales:
       - Loading.
@@ -141,21 +173,23 @@ export default function HabitacionDetalle() {
       {/* Miniaturas a la izquierda e imagen principal a la derecha en grande */}
       <div className="hd-contenedor-fotos">
         <div className="hd-contenedor-miniaturas">
-          {fotosHabitacion.map((foto) => (
+          {fotosHabitaciones.map((foto) => (
             <div
               key={foto.id}
-              className={`hd-miniatura ${fotoActual.id === foto.id ? "activa" : ""}`}
+              className={`hd-miniatura ${fotoActual?.id === foto.id ? "activa" : ""}`}
               onClick={() => handleCambiarFotoHabitacion(foto)}
             >
               <img src={foto.src} alt="Imagen miniatura" />
             </div>
           ))}
         </div>
-        
-        <div className="hd-foto-principal">
-          <img src={fotoActual.src} alt="Imagen principal"  />
+        {fotoActual && (
+          <div className="hd-foto-principal">
+            <img src={fotoActual.src} alt="Imagen principal"  />
+          </div>
+        )}
         </div>
-      </div>
+        
       
       {/* Botones para desplazar las fotos: Anterior y Siguiente */}
       <div className="hd-contenedor-botones-fotos"> 
@@ -204,12 +238,14 @@ export default function HabitacionDetalle() {
 
 
       {/* Formulario de reserva */}
-      <div className="formulario">
-        <FormularioHabitacion
-          tipoHabitacion={tipo?.nombre || "Premium"} 
-          habitacionId={id}
-        />
-      </div>
+      {
+        <div className="formulario">
+          <FormularioHabitacion
+            tipoHabitacion={tipo?.nombre || ""}
+            habitacionId={esRutaTipoHab ? null : id }
+          />
+        </div>
+      }
     </div>
   );
 }

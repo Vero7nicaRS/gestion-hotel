@@ -4,6 +4,7 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import {Link} from "react-router-dom";
 import '../styles/NavBar.css';
+
 import logoHestia from "../assets/logos/logo-hestia-blanco.png";
 import iconoUsuario from "../assets/navbar/usuario-blanco.png";
 import { useEffect, useState } from "react";
@@ -106,7 +107,7 @@ function NavBar() {
                 <Fragment key={habitacion.id}>
                   <NavDropdown.Item 
                     as={Link} 
-                    to={`/habitacion/${habitacion.id}`}>
+                    to={`/tipo-habitacion/${habitacion.id}`}>
                       {habitacion.nombre}
                   </NavDropdown.Item>
 
@@ -124,7 +125,7 @@ function NavBar() {
                 <Fragment key={sala.id}>
                   <NavDropdown.Item 
                     as={Link} 
-                    to={`/sala/${sala.id}`}>
+                    to={`/tipo-sala/${sala.id}`}>
                       {sala.nombre}
                   </NavDropdown.Item>
 
@@ -133,16 +134,6 @@ function NavBar() {
                 </Fragment>
               ))}
             </NavDropdown>
-   
-          {/*
-           <NavDropdown title="Salas" id="basic-nav-dropdown">
-              <NavDropdown.Item as={Link} to="/salas/">Eco</NavDropdown.Item>
-              <NavDropdown.Divider />
-              <NavDropdown.Item as={Link} to="/salas/">Pro</NavDropdown.Item>
-            </NavDropdown>
-          
-          */}  
-         
             <Nav.Link as={Link} to="/contacto">Contacto</Nav.Link>
             <NavDropdown title="Reservas" id="basic-nav-dropdown">
               <NavDropdown.Item as={Link} to="/sala-formulario">Reservas Salas</NavDropdown.Item>
