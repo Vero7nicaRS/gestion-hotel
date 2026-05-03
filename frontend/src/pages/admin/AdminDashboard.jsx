@@ -346,9 +346,25 @@ const AdminDashboard = ({ onLogout = () => { } }) => {
 
   return (
     <main className="admin-dashboard">
-      <h1 className="admin-title">Panel de Administración HESTIA</h1>
+      <div className='admin-header'>
 
-      {/* 🔥 TABS */}
+        <div className='admin-header-left'>
+          <h1 className="admin-title">Panel de administración HESTIA</h1>
+        </div>
+        
+        <div className='admin-header-right'>
+          <button
+          type="button"
+          className="admin-filter-btn admin-logout-btn"
+          onClick={handleLogoutClick}
+          >
+            Cerrar sesión
+          </button>
+        </div>
+         
+      </div>
+      
+      
       <div className="admin-tabs">
         <button
           className={seccionActiva === "reservas" ? "active" : ""}
@@ -371,13 +387,7 @@ const AdminDashboard = ({ onLogout = () => { } }) => {
           Salas
         </button>
 
-        <button
-          type="button"
-          className="admin-filter-btn admin-logout-btn"
-          onClick={handleLogoutClick}
-        >
-          Cerrar sesión
-        </button>
+       
       </div>
 
       {/* ===================== RESERVAS ===================== */}
@@ -457,30 +467,35 @@ const AdminDashboard = ({ onLogout = () => { } }) => {
                 <h3>Crear nueva habitación</h3>
 
                 <form onSubmit={handleCrearHabitacion} className="admin-form">
-                  <input
+                  <div className='admin-form-group'>
+                    <input
                     type="number"
                     value={nuevoNumeroHabitacion}
                     onChange={(e) =>
                       setNuevoNumeroHabitacion(e.target.value)
                     }
-                    placeholder="Número"
+                    placeholder="Número habitación"
                   />
+                  </div>
+                  
+                  <div className='admin-form-group'>
+                    <select
+                      value={tipoHabitacionParaNueva}
+                      onChange={(e) =>
+                        setTipoHabitacionParaNueva(e.target.value)
+                      }
+                    >
+                      <option value="">Selecciona un tipo</option>
+                      {tiposHabitacion.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.nombre}
+                        </option>
+                      ))}
+                    </select>
 
-                  <select
-                    value={tipoHabitacionParaNueva}
-                    onChange={(e) =>
-                      setTipoHabitacionParaNueva(e.target.value)
-                    }
-                  >
-                    <option value="">Selecciona un tipo</option>
-                    {tiposHabitacion.map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.nombre}
-                      </option>
-                    ))}
-                  </select>
-
-                  <button type="submit">Guardar habitación</button>
+                  </div>
+                
+                  <button type="submit" className="admin-btn admin-btn-primary admin-btn-center">Guardar habitación</button>
                 </form>
               </div>
             </div>
@@ -490,33 +505,40 @@ const AdminDashboard = ({ onLogout = () => { } }) => {
           <section className="admin-gestion-habitaciones">
             <div className="admin-gestion-card">
               <h3>Editar tipos y reasignar habitaciones</h3>
+              <div className="admin-form-group">
+                <select
+                  value={tipoSeleccionadoId}
+                  onChange={(e) => handleSeleccionTipo(e.target.value)}
+                >
+                  <option value="">Selecciona un tipo</option>
+                  {tiposHabitacion.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.nombre}
+                    </option>
+                  ))}
+                </select>
 
-              <select
-                value={tipoSeleccionadoId}
-                onChange={(e) => handleSeleccionTipo(e.target.value)}
-              >
-                <option value="">Selecciona un tipo</option>
-                {tiposHabitacion.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.nombre}
-                  </option>
-                ))}
-              </select>
+              </div>
+              
 
               {tipoSeleccionado && (
                 <>
+                <div className="admin-form-group">
                   <input
                     type="number"
                     value={precioEditado}
                     onChange={(e) => setPrecioEditado(e.target.value)}
                   />
 
-                  <button onClick={handleGuardarPrecioTipo}>
+                </div>
+                  
+
+                  <button onClick={handleGuardarPrecioTipo}  className="admin-btn admin-btn-primary">
                     Guardar precio
                   </button>
 
                   {habitacionesDelTipo.map((h) => (
-                    <div key={h.id}>
+                    <div key={h.id} className='admin-item-row'>
                       Hab {h.numero}
                       <select
                         value={tipoSeleccionadoPorHabitacion[h.id]}
@@ -534,7 +556,7 @@ const AdminDashboard = ({ onLogout = () => { } }) => {
                         ))}
                       </select>
 
-                      <button
+                      <button  className="admin-btn admin-btn-small admin-btn-secondary"
                         onClick={() =>
                           handleCambiarTipoDeHabitacion(h.id)
                         }
@@ -555,29 +577,49 @@ const AdminDashboard = ({ onLogout = () => { } }) => {
         <>
           {/* CREAR */}
           <section className="admin-gestion-habitaciones">
-            <h2>Gestión de salas</h2>
 
-            <form onSubmit={handleCrearSala}>
-              <input
-                type="number"
-                value={nuevoNumeroSala}
-                onChange={(e) => setNuevoNumeroSala(e.target.value)}
-              />
-
-              <select
-                value={tipoSalaParaNueva}
-                onChange={(e) => setTipoSalaParaNueva(e.target.value)}
-              >
-                <option value="">Selecciona un tipo</option>
-                {tiposSala.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.nombre}
-                  </option>
-                ))}
-              </select>
-
-              <button type="submit">Guardar sala</button>
-            </form>
+            <h2 className="admin-section-title">Gestión de salas</h2>
+            {mensajeCrearSala && (
+              <div className="admin-alert admin-alert-success">
+                {mensajeCrearSala}
+              </div>
+            )}
+            {errorCrearSala && (
+              <div className="admin-alert admin-alert-error">
+                {errorCrearSala}
+              </div>
+            )}
+            <div className="admin-gestion-grid">
+              <div className="admin-gestion-card">
+                <h3>Crear nueva sala</h3>
+                <form onSubmit={handleCrearSala} className="admin-form">
+                  <div className="admin-form-group">
+                    <input
+                      type="number"
+                      value={nuevoNumeroSala}
+                      onChange={(e) => setNuevoNumeroSala(e.target.value)}
+                      placeholder="Número sala"
+                    />
+                  </div>
+                  <div className="admin-form-group">
+                    <select
+                      value={tipoSalaParaNueva}
+                      onChange={(e) => setTipoSalaParaNueva(e.target.value)}
+                    >
+                      <option value="">Selecciona un tipo</option>
+                      {tiposSala.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.nombre}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                
+                  <button type="submit" className="admin-btn admin-btn-primary admin-btn-center">Guardar sala</button>
+                </form>
+              </div>
+            </div>
+            
           </section>
 
           {/* EDITAR */}
@@ -585,36 +627,42 @@ const AdminDashboard = ({ onLogout = () => { } }) => {
             <div className="admin-gestion-card">
               <h3>Editar tipos y reasignar salas</h3>
 
-              <select
-                value={tipoSalaSeleccionadoId}
-                onChange={(e) =>
-                  handleSeleccionTipoSala(e.target.value)
-                }
-              >
-                <option value="">Selecciona un tipo</option>
-                {tiposSala.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.nombre}
-                  </option>
-                ))}
-              </select>
+              <div className='admin-form-group'>
+                <select
+                  value={tipoSalaSeleccionadoId}
+                  onChange={(e) =>
+                    handleSeleccionTipoSala(e.target.value)
+                  }
+                >
+                  <option value="">Selecciona un tipo</option>
+                  {tiposSala.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.nombre}
+                    </option>
+                  ))}
+                </select>
+
+              </div>
+              
 
               {tipoSalaSeleccionado && (
                 <>
-                  <input
-                    type="number"
-                    value={precioSalaEditado}
-                    onChange={(e) =>
-                      setPrecioSalaEditado(e.target.value)
-                    }
-                  />
-
-                  <button onClick={handleGuardarPrecioTipoSala}>
+                  <div className='admin-form-group'>
+                    <input
+                      type="number"
+                      value={precioSalaEditado}
+                      onChange={(e) =>
+                        setPrecioSalaEditado(e.target.value)
+                      }
+                    />
+                  </div>
+                  
+                  <button onClick={handleGuardarPrecioTipoSala}  className="admin-btn admin-btn-primary">
                     Guardar precio
                   </button>
 
                   {salasDelTipo.map((s) => (
-                    <div key={s.id}>
+                    <div key={s.id} className="admin-item-row">
                       Sala {s.numero}
 
                       <select
@@ -633,7 +681,7 @@ const AdminDashboard = ({ onLogout = () => { } }) => {
                         ))}
                       </select>
 
-                      <button
+                      <button className="admin-btn admin-btn-small admin-btn-secondary"
                         onClick={() =>
                           handleCambiarTipoDeSala(s.id)
                         }

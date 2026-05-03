@@ -1,4 +1,12 @@
 
+@font-face {
+  font-family: 'poppinsR';
+  src: url('../assets/fonts/Poppins-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'poppinsB';
+  src: url('../assets/fonts/Poppins-Bold.ttf') format('truetype');
+}
 
 :root {
   --admin-primary: #ED1C24;
@@ -52,7 +60,9 @@
 
 .admin-filter-btn:hover {
   background-color: var(--admin-primary);
+  border-color: #ED1C24;
   color: var(--admin-light);
+  
 }
 
 .admin-filter-btn.active {
@@ -77,9 +87,10 @@
   cursor: pointer;
 }
 
+/* Tarjeta de reserva (Reservas)*/
 .admin-reserva-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 12px rgba(172, 137, 104, 0.2);
+  box-shadow: 0 4px 6px rgba(232, 78, 78, 0.616);
 }
 
 .admin-card-header {
@@ -401,13 +412,20 @@
   border-radius: 12px;
   padding: 1.5rem;
   border: 1px solid var(--admin-secondary);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 6px rgba(255, 35, 35, 0.04);
+
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .admin-form {
-  display: flex;
+  display: contents;
   flex-direction: column;
   gap: 0.9rem;
+  margin: 0;
+  padding: 0;
+
 }
 
 .admin-form-group {
@@ -417,12 +435,27 @@
 }
 
 .admin-form-group input,
-.admin-form-group select {
+.admin-form-group select,
+.admin-item-row select {
+  width: 100%;
+  height: 40px;
+  box-sizing: border-box;
   font-size: 0.9rem;
   padding: 0.5rem 0.7rem;
   border-radius: 8px;
   border: 1px solid #dcdcdc;
+  font-family: 'poppinsR', sans-serif;
+  background-color: white;
 }
+
+.admin-item-row {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  gap: 0.8rem;
+  align-items: center;
+  margin-top: 0.8rem;
+}
+
 
 .admin-help-text {
   font-size: 1rem;
@@ -448,12 +481,12 @@
   color: #c62828;
   border: 1px solid rgba(244, 67, 54, 0.5);
 }
+
 /* Botón principal de 'Guardar habitación' en Bloque A */
-.admin-gestion-habitaciones .admin-gestion-card:first-child .admin-btn-primary {
-  display: inline-flex;
-  align-self: center;          /* centrado respecto al formulario */
-  margin-top: 0.75rem;         /* espacio extra con el texto de arriba */
-  padding: 0.45rem 1.4rem;     /* bastante más bajo */
+.admin-btn-center {
+  align-self: center;
+  margin-top: 0.75rem;
+  padding: 0.45rem 1.4rem;
   font-size: 0.9rem;
   border-radius: 6px;
 }
@@ -497,4 +530,43 @@
 .admin-tabs button.active {
   background-color: var(--admin-primary);
   color: var(--admin-light);
+}
+
+
+/* Parte de panel de administración y botón de "Cerrar sesión" */
+
+/* PANEL DE ADMINISTRACIÓN*/
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+  background-color: #ffffff;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+}
+
+.admin-header-left {
+  flex: 1;         
+  min-width: 0;      
+}
+
+.admin-title {
+  margin: 0;
+  white-space: nowrap;  
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* BOTÓN CERRAR SESIÓN*/
+.admin-logout-btn{
+  color:rgb(0, 0, 0);
+  background-color: #ffffff;
+  border-color: #1F1F1F;
+}
+
+.admin-logout-btn:hover{
+  background-color: #ED1C24;
+  color:white;
 }
