@@ -85,7 +85,14 @@ strong{
   font-size: 16px;
   outline: none;
   background: white;
+  color: #333;
+  color-scheme: light;
   transition: 0.3s ease;
+}
+
+.grupo-formulario select option {
+  background-color: white;
+  color: #333;
 }
 .grupo-formulario label {
   position: absolute;

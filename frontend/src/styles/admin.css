@@ -420,12 +420,11 @@
 }
 
 .admin-form {
-  display: contents;
+  display: flex;
   flex-direction: column;
   gap: 0.9rem;
   margin: 0;
   padding: 0;
-
 }
 
 .admin-form-group {
@@ -446,6 +445,14 @@
   border: 1px solid #dcdcdc;
   font-family: 'poppinsR', sans-serif;
   background-color: white;
+  color: #333;
+  color-scheme: light;
+}
+
+.admin-form-group select option,
+.admin-item-row select option {
+  background-color: white;
+  color: #333;
 }
 
 .admin-item-row {

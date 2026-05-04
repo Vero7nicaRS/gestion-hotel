@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "../styles/Formulario.css";
+import { API_BASE_URL } from "../api/api";
 
 export default function FormularioSala({tipoSala, salaId}) {
 
@@ -34,32 +35,27 @@ export default function FormularioSala({tipoSala, salaId}) {
   //se crea const salasArray
   const salasArray = Array.isArray(salas) ? salas : [];
 
+const esLaSalaSeleccionada = (s) =>
+  salaId && s.id.toString() === salaId.toString();
+
 const salasFiltradas = tipoSala
   ? salasArray.filter(
       (s) =>
-        s.estado === "DISPONIBLE" &&
+        (s.estado === "DISPONIBLE" || esLaSalaSeleccionada(s)) &&
         s.tipo_sala?.nombre?.toLowerCase() === tipoSala?.toLowerCase()
     )
-  : salasArray.filter((h) => h.estado === "DISPONIBLE");
+  : salasArray.filter((s) => s.estado === "DISPONIBLE" || esLaSalaSeleccionada(s));
 
   // Obtener salas disponibles
-  useEffect(()=>{
-
-    fetch("http://127.0.0.1:8000/api/salas/")
-      .then(res => res.json())
-      .then(data => setSalas(data))
-      .catch(err => console.error(err));
-
-  },[]);
-      // poner id seleccionado en disponibilidad en el formulario
   useEffect(() => {
-    if (salaId) {
-      setFormData((prev) => ({
-        ...prev,
-        salas: salaId.toString(),
-      }));
-    }
-  }, [salaId]);
+    fetch(`${API_BASE_URL}/salas/`)
+      .then(res => res.json())
+      .then(data => {
+        const arr = Array.isArray(data) ? data : (data.results || []);
+        setSalas(arr);
+      })
+      .catch(err => console.error(err));
+  }, []);
 
   // change controlado + reset jornada
     const handleChange = (e) => {
