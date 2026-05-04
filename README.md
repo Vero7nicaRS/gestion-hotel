@@ -42,6 +42,7 @@ pip install -r requirements.txt
 cd backend
 ```
 4.1 Configuración de variables de entorno.
+
 Crear archivo ".env" a partir ".env.estructura" y completar los datos necesarios para la conexión a la base de datos MySQL.
 
 4.2 Ejecutar backend
