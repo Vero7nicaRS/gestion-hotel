@@ -158,18 +158,18 @@ export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
       <div className="grid-personales">
 
         <div className="grupo-formulario nombre">
-          <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} required placeholder=""/>
-          <label>Nombre completo</label>
+          <input type="text" id="nombre" name="nombre" value={formData.nombre} onChange={handleChange} required placeholder=""/>
+          <label htmlFor="nombre">Nombre completo</label>
         </div> 
 
         <div className="grupo-formulario">
-          <input type="email"name="email"value={formData.email}onChange={handleChange}required placeholder=""/>
-          <label>Correo electrónico</label>
+          <input type="email"id="email" name="email"value={formData.email}onChange={handleChange}required placeholder=""/>
+          <label htmlFor="email">Correo electrónico</label>
         </div>
         
         <div className="grupo-formulario">
-          <input type="tel"name="telefono"value={formData.telefono}onChange={handleChange}pattern="[0-9]{10}"maxLength="10"required placeholder=""/>
-          <label>Teléfono</label>
+          <input type="tel"id="telefono" name="telefono"value={formData.telefono}onChange={handleChange}pattern="[0-9]{10}"maxLength="10"required placeholder=""/>
+          <label htmlFor="telefono">Teléfono</label>
         </div>
       </div>
 
@@ -179,6 +179,7 @@ export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
         <div className="grupo-formulario">
           <select  
             name="habitacion"
+            id="habitacion"
             value={formData.habitacion}
             onChange={handleChange}
             required = {habitacionesFiltradas.length >0}
@@ -200,14 +201,15 @@ export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
         </div>
 
         <div className="grupo-formulario">
-          <input type="number"min="1"max="8"name="numero_personas"value={formData.numero_personas}onChange={handleChange}required/>
-          <label>Número de personas</label>
+          <input type="number"min="1"max="8"id="numero_personas" name="numero_personas"value={formData.numero_personas}onChange={handleChange}required/>
+          <label htmlFor="numero_personas">Número de personas</label>
         </div>
 
         <div className="grupo-formulario">
           <input
             type={formData.fecha_entrada ? "date" : "text"}
             name="fecha_entrada"
+            id="fecha_entrada"
             value={formData.fecha_entrada}
             onFocus={(e) => (e.target.type = "date")}
             onBlur={(e) => {
@@ -219,13 +221,14 @@ export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
             placeholder=" "
             required
           />
-          <label>Fecha de entrada</label>
+          <label htmlFor="fecha_entrada">Fecha de entrada</label>
         </div>
 
         <div className="grupo-formulario">
           <input
             type={formData.fecha_salida ? "date" : "text"}
             name="fecha_salida"
+            id="fecha_salida"
             value={formData.fecha_salida}
             onFocus={(e) => (e.target.type = "date")}
             onBlur={(e) => {
@@ -237,7 +240,7 @@ export default function FormularioHabitacion({ tipoHabitacion, habitacionId }) {
             placeholder=" "
             required
           />
-          <label>Fecha de salida</label>
+          <label htmlFor="fecha_salida">Fecha de salida</label>
         </div>
       </div>
       
