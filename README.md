@@ -18,8 +18,11 @@ Crear una solución tecnológica moderna, escalable y eficiente, orientada a mej
 
 
 ## ⚙ Instalación y ejecución
+
 1. Clonar el repositorio
+
 git clone https://github.com/Vero7nicaRS/gestion-hotel-hestia.git
+
 cd gestion-hotel-hestia
 
 2. Crear y activar entorno virtual
